@@ -70,7 +70,7 @@ int main() {
     window.clear();
 
     // Draw user tank
-    userTank->updatePos();
+    userTank->updatePos(BrickWalls);
     usertankTexture = userTank->getTexture(Sprites);
     userTankSprite.setTexture(usertankTexture);
     userTankSprite.setPosition({static_cast<float>(userTank->getX()),

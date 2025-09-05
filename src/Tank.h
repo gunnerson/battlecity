@@ -1,4 +1,5 @@
 #pragma once
+#include "BrickWall.h"
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Image.hpp>
 
@@ -42,16 +43,42 @@ public:
     return texture;
   };
 
-  void updatePos() {
+  void updatePos(const std::vector<std::unique_ptr<BrickWall>> &BrickWalls) {
+    bool collisionDetected = false;
+    // Going UP
     if (m_dir == 0 and m_y != 0) {
-      m_y -= m_speed;
-      ++m_anim;
+      for (const auto &obj : BrickWalls) {
+        int x = obj->getX();
+        int y = obj->getY();
+        if ((x + 4 >= m_x) && (x <= m_x + 16) && (y + 4 >= m_y - 1)) {
+          collisionDetected = true;
+          break;
+        };
+      }
+      if (!collisionDetected) {
+        m_y -= m_speed;
+        ++m_anim;
+      }
+
+      // Going Left
     } else if (m_dir == 1 and m_x != 0) {
-      m_x -= m_speed;
-      ++m_anim;
+      for (const auto &obj : BrickWalls) {
+        int x = obj->getX();
+        int y = obj->getY();
+        if ((y + 4 >= m_y) && (y <= m_y + 16) && (x + 4 >= m_x - 1)) {
+          collisionDetected = true;
+          break;
+        };
+      }
+      if (!collisionDetected) {
+        m_x -= m_speed;
+        ++m_anim;
+      }
+
     } else if (m_dir == 2 and m_y != g_maxY - 16) {
       m_y += m_speed;
       ++m_anim;
+
     } else if (m_dir == 3 and m_x != g_maxX - 16) {
       m_x += m_speed;
       ++m_anim;
