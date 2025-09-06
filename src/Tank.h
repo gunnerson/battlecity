@@ -50,7 +50,8 @@ public:
       for (const auto &obj : BrickWalls) {
         int x = obj->getX();
         int y = obj->getY();
-        if ((x + 4 >= m_x) && (x <= m_x + 16) && (y + 4 >= m_y - 1)) {
+        if ((x + 4 > m_x) && (x < m_x + 16) && (y + 4 >= m_y) &&
+            (y < m_y + 16)) {
           collisionDetected = true;
           break;
         };
@@ -65,7 +66,8 @@ public:
       for (const auto &obj : BrickWalls) {
         int x = obj->getX();
         int y = obj->getY();
-        if ((y + 4 >= m_y) && (y <= m_y + 16) && (x + 4 >= m_x - 1)) {
+        if ((y + 4 > m_y) && (y < m_y + 16) && (x + 4 >= m_x) &&
+            (x < m_x + 16)) {
           collisionDetected = true;
           break;
         };
@@ -75,13 +77,37 @@ public:
         ++m_anim;
       }
 
+      // Going Down
     } else if (m_dir == 2 and m_y != g_maxY - 16) {
-      m_y += m_speed;
-      ++m_anim;
+      for (const auto &obj : BrickWalls) {
+        int x = obj->getX();
+        int y = obj->getY();
+        if ((x + 4 > m_x) && (x < m_x + 16) && (y <= m_y + 16) &&
+            (m_y < y + 4)) {
+          collisionDetected = true;
+          break;
+        };
+      }
+      if (!collisionDetected) {
+        m_y += m_speed;
+        ++m_anim;
+      }
 
+      // Going Right
     } else if (m_dir == 3 and m_x != g_maxX - 16) {
-      m_x += m_speed;
-      ++m_anim;
+      for (const auto &obj : BrickWalls) {
+        int x = obj->getX();
+        int y = obj->getY();
+        if ((y + 4 > m_y) && (y < m_y + 16) && (x <= m_x + 16) &&
+            (m_x < x + 4)) {
+          collisionDetected = true;
+          break;
+        };
+      }
+      if (!collisionDetected) {
+        m_x += m_speed;
+        ++m_anim;
+      }
     }
   }
 };
