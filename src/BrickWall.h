@@ -100,17 +100,15 @@ class BrickWall {
 private:
   int m_x{};
   int m_y{};
-  bool m_alive{};
+  bool m_alive{true};
   sf::Texture m_Texture{};
 
 public:
-  BrickWall(int x, int y, int t, sf::Image Sprites) {
-    m_x = x;
-    m_y = y;
-    m_alive = true;
-    m_Texture = sf::Texture(Sprites, false,
-                            sf::IntRect({256 + t % 4 * 4, t / 4 * 4}, {4, 4}));
-  }
+  BrickWall(int x, int y, int t, const sf::Image &Sprites)
+      : m_x{x}, m_y{y},
+        m_Texture{
+            sf::Texture(Sprites, false,
+                        sf::IntRect({256 + t % 4 * 4, t / 4 * 4}, {4, 4}))} {}
 
   int getX() const { return m_x; }
   void setX(int x) { m_x = x; }

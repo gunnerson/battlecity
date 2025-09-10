@@ -10,12 +10,37 @@
 // globals {{{1
 constexpr int g_maxX = 208;
 constexpr int g_maxY = 208;
+constexpr int g_updateRate = 30;
+bool g_up = false;
+bool g_left = false;
+bool g_down = false;
+bool g_right = false;
 
 // events {{{1
-void handleUpKeyPressed(Tank *tank) { tank->setDir(0); }
-void handleRightKeyPressed(Tank *tank) { tank->setDir(3); }
-void handleDownKeyPressed(Tank *tank) { tank->setDir(2); }
-void handleLeftKeyPressed(Tank *tank) { tank->setDir(1); }
+void handleUpKeyPressed(Tank *tank) {
+  tank->setDir(0);
+  g_up = true;
+  g_left = g_right = g_down = false;
+}
+void handleLeftKeyPressed(Tank *tank) {
+  tank->setDir(1);
+  g_left = true;
+  g_up = g_right = g_down = false;
+}
+void handleDownKeyPressed(Tank *tank) {
+  tank->setDir(2);
+  g_down = true;
+  g_up = g_left = g_right = false;
+}
+void handleRightKeyPressed(Tank *tank) {
+  tank->setDir(3);
+  g_right = true;
+  g_up = g_left = g_down = false;
+}
+void handleUpKeyReleased(Tank *tank) { g_up = false; }
+void handleLeftKeyReleased(Tank *tank) { g_left = false; }
+void handleDownKeyReleased(Tank *tank) { g_down = false; }
+void handleRightKeyReleased(Tank *tank) { g_right = false; }
 void handleSpaceKeyPressed() {}
 
 // main {{{1
@@ -24,15 +49,15 @@ int main() {
       sf::RenderWindow(sf::VideoMode({static_cast<unsigned int>(g_maxX),
                                       static_cast<unsigned int>(g_maxY)}),
                        "Battlecity");
-  window.setFramerateLimit(30);
+  window.setFramerateLimit(g_updateRate);
   window.setKeyRepeatEnabled(false);
 
   const sf::Image Sprites("res/sprites.png");
 
   // User tank sprite
-  auto userTank{std::make_unique<Tank>(0, 1, 1, 0, 64, 192)};
+  auto userTank{std::make_unique<Tank>(0, 1, 1, 0, 64, 192, Sprites)};
   auto userTank_ptr = userTank.get();
-  sf::Texture usertankTexture = userTank->getTexture(Sprites);
+  sf::Texture usertankTexture = userTank->getTexture();
   sf::Sprite userTankSprite(usertankTexture);
 
   // Brick walls
@@ -55,23 +80,38 @@ int main() {
           window.close();
         else if (keyPressed.scancode == sf::Keyboard::Scancode::Up)
           handleUpKeyPressed(userTank_ptr);
-        else if (keyPressed.scancode == sf::Keyboard::Scancode::Down)
-          handleDownKeyPressed(userTank_ptr);
         else if (keyPressed.scancode == sf::Keyboard::Scancode::Left)
           handleLeftKeyPressed(userTank_ptr);
+        else if (keyPressed.scancode == sf::Keyboard::Scancode::Down)
+          handleDownKeyPressed(userTank_ptr);
         else if (keyPressed.scancode == sf::Keyboard::Scancode::Right)
           handleRightKeyPressed(userTank_ptr);
         else if (keyPressed.scancode == sf::Keyboard::Scancode::Space)
           handleSpaceKeyPressed();
       };
 
+  const auto onKeyReleased =
+      [&window, &userTank_ptr](const sf::Event::KeyReleased &keyReleased) {
+        if (keyReleased.scancode == sf::Keyboard::Scancode::Up)
+          handleUpKeyReleased(userTank_ptr);
+        else if (keyReleased.scancode == sf::Keyboard::Scancode::Left)
+          handleLeftKeyReleased(userTank_ptr);
+        else if (keyReleased.scancode == sf::Keyboard::Scancode::Down)
+          handleDownKeyReleased(userTank_ptr);
+        else if (keyReleased.scancode == sf::Keyboard::Scancode::Right)
+          handleRightKeyReleased(userTank_ptr);
+      };
+
   while (window.isOpen()) {
-    window.handleEvents(onClose, onKeyPressed);
+    window.handleEvents(onClose, onKeyPressed, onKeyReleased);
     window.clear();
 
     // Draw user tank
-    userTank->updatePos(BrickWalls);
-    usertankTexture = userTank->getTexture(Sprites);
+    if (g_up || g_left || g_down || g_right) {
+      userTank->updatePos(BrickWalls);
+      userTank->setTexture(Sprites);
+    }
+    usertankTexture = userTank->getTexture();
     userTankSprite.setTexture(usertankTexture);
     userTankSprite.setPosition({static_cast<float>(userTank->getX()),
                                 static_cast<float>(userTank->getY())});
