@@ -43,10 +43,9 @@ void handleLeftKeyReleased(Tank *tank) { g_left = false; }
 void handleDownKeyReleased(Tank *tank) { g_down = false; }
 void handleRightKeyReleased(Tank *tank) { g_right = false; }
 void handleSpaceKeyPressed(
-    Tank *tank, std::vector<std::unique_ptr<Projectile>> &Projectiles,
-    const sf::Image &Sprites) {
+    Tank *tank, std::vector<std::unique_ptr<Projectile>> &Projectiles) {
   auto [x, y, dir] = tank->getProjectilePos();
-  auto obj = std::make_unique<Projectile>(x, y, dir, Sprites);
+  auto obj = std::make_unique<Projectile>(x, y, dir);
   Projectiles.push_back(std::move(obj));
 }
 
@@ -82,12 +81,14 @@ int main() {
   sf::Sprite brickWallSprite(brickWallTexture);
 
   // Projectiles
+  std::vector<std::unique_ptr<sf::Texture>> ProjectileTextures =
+      initProjectileTextures(Sprites);
   std::vector<std::unique_ptr<Projectile>> Projectiles{};
 
   // Handle events
   const auto onClose = [&window](const sf::Event::Closed &) { window.close(); };
 
-  const auto onKeyPressed = [&window, &userTank_ptr, &Projectiles, &Sprites](
+  const auto onKeyPressed = [&window, &userTank_ptr, &Projectiles](
                                 const sf::Event::KeyPressed &keyPressed) {
     if (keyPressed.scancode == sf::Keyboard::Scancode::Escape)
       window.close();
@@ -100,7 +101,7 @@ int main() {
     else if (keyPressed.scancode == sf::Keyboard::Scancode::Right)
       handleRightKeyPressed(userTank_ptr);
     else if (keyPressed.scancode == sf::Keyboard::Scancode::Space)
-      handleSpaceKeyPressed(userTank_ptr, Projectiles, Sprites);
+      handleSpaceKeyPressed(userTank_ptr, Projectiles);
   };
 
   const auto onKeyReleased =
@@ -122,7 +123,7 @@ int main() {
 
     // Draw projectiles
     for (const auto &obj : Projectiles) {
-      auto texture = obj->getTexture();
+      auto texture = obj->getTexture(ProjectileTextures);
       sf::Sprite sprite(texture);
       sprite.setPosition(
           {static_cast<float>(obj->getX()), static_cast<float>(obj->getY())});

@@ -131,13 +131,13 @@ public:
   std::tuple<int, int, int> getProjectilePos() const {
     switch (m_dir) {
     case 0:
-      return {m_x, m_y - 16, m_dir};
+      return {m_x, m_y - m_dy, m_dir};
     case 1:
-      return {m_x - 16, m_y, m_dir};
+      return {m_x - m_dx, m_y, m_dir};
     case 2:
-      return {m_x, m_y + 16, m_dir};
+      return {m_x, m_y + m_dy, m_dir};
     case 3:
-      return {m_x + 16, m_y, m_dir};
+      return {m_x + m_dx, m_y, m_dir};
     }
     return {0, 0, 0};
   }
@@ -182,6 +182,8 @@ initTankTextures(const sf::Image &Sprites) {
               break;
             }
             break;
+
+            // TODO: write offsets for all tank sprites
 
           default:
             dX = 15;
