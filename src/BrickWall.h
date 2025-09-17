@@ -101,12 +101,12 @@ private:
   int m_x{};
   int m_y{};
   bool m_alive{true};
-  sf::Texture m_Texture{};
+  sf::Texture m_texture{};
 
 public:
   BrickWall(int x, int y, int t, const sf::Image &Sprites)
       : m_x{x}, m_y{y},
-        m_Texture{
+        m_texture{
             sf::Texture(Sprites, false,
                         sf::IntRect({256 + t % 4 * 4, t / 4 * 4}, {4, 4}))} {}
 
@@ -118,5 +118,5 @@ public:
 
   bool is_alive() const { return m_alive; }
 
-  sf::Texture getTexture() const { return m_Texture; };
+  sf::Texture getTexture() const { return m_texture; };
 };

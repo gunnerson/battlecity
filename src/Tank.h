@@ -19,16 +19,21 @@ private:
   int m_dir{};   // 0 - up, 1 - left, 2 - down, 3 - right
   int m_x{};     // X offset from top left corner
   int m_y{};     // Y offset from top left corner
+  int m_dx{};    // Texture width
+  int m_dy{};    // Texture height
   int m_anim{0}; // Movement animation counter
   sf::Texture m_texture1{};
   sf::Texture m_texture2{};
 
 public:
   Tank(int type, int speed, int color, int dir, int x, int y,
-       const sf::Image &Sprites)
+       const std::vector<std::unique_ptr<sf::Texture>> &Textures)
       : m_type{type}, m_speed{speed}, m_color{color}, m_dir{dir}, m_x{x},
         m_y{y} {
-    setTexture(Sprites);
+    setTexture(Textures);
+    auto textureSize = m_texture1.getSize();
+    m_dx = textureSize.x;
+    m_dy = textureSize.y;
   }
 
   int getDir() const { return m_dir; }
@@ -44,12 +49,10 @@ public:
     return m_anim % 2 ? m_texture1 : m_texture2;
   };
 
-  void setTexture(const sf::Image &Sprites) {
-    int x = m_dir * 32 + m_color % 2 * 128;
-    int y = m_type * 16 + m_color / 2 * 128;
-    m_texture1 = sf::Texture(Sprites, false, sf::IntRect({x, y}, {16, 16}));
-    m_texture2 =
-        sf::Texture(Sprites, false, sf::IntRect({x + 16, y}, {16, 16}));
+  void setTexture(const std::vector<std::unique_ptr<sf::Texture>> &Textures) {
+    int idx = m_type * 32 + m_color * 8 + m_dir * 2;
+    m_texture1 = *Textures[idx];
+    m_texture2 = *Textures[++idx];
   };
 
   void updatePos(const std::vector<std::unique_ptr<BrickWall>> &BrickWalls) {
@@ -68,7 +71,7 @@ public:
       for (const auto &obj : BrickWalls) {
         int x = obj->getX();
         int y = obj->getY();
-        if ((x + 3 >= m_x) && (x <= m_x + 15) && (y + 4 == m_y)) {
+        if ((x + 4 > m_x) && (x < m_x + m_dx) && (y + 4 == m_y)) {
           collisionDetected = true;
           break;
         };
@@ -83,7 +86,7 @@ public:
       for (const auto &obj : BrickWalls) {
         int x = obj->getX();
         int y = obj->getY();
-        if ((y + 3 >= m_y) && (y <= m_y + 15) && (x + 4 == m_x)) {
+        if ((y + 4 > m_y) && (y < m_y + m_dy) && (x + 4 == m_x)) {
           collisionDetected = true;
           break;
         };
@@ -94,11 +97,11 @@ public:
       }
 
       // Going Down
-    } else if (m_dir == 2 and m_y != g_maxY - 16) {
+    } else if (m_dir == 2 and m_y != g_maxY - m_dy) {
       for (const auto &obj : BrickWalls) {
         int x = obj->getX();
         int y = obj->getY();
-        if ((x + 3 >= m_x) && (x <= m_x + 15) && (y == m_y + 16)) {
+        if ((x + 4 > m_x) && (x < m_x + m_dx) && (y == m_y + m_dy)) {
           collisionDetected = true;
           break;
         };
@@ -109,11 +112,11 @@ public:
       }
 
       // Going Right
-    } else if (m_dir == 3 and m_x != g_maxX - 16) {
+    } else if (m_dir == 3 and m_x != g_maxX - m_dx) {
       for (const auto &obj : BrickWalls) {
         int x = obj->getX();
         int y = obj->getY();
-        if ((y + 4 > m_y) && (y < m_y + 16) && (x == m_x + 16)) {
+        if ((y + 4 > m_y) && (y < m_y + m_dy) && (x == m_x + m_dx)) {
           collisionDetected = true;
           break;
         };
@@ -124,4 +127,77 @@ public:
       }
     }
   }
+
+  std::tuple<int, int, int> getProjectilePos() const {
+    switch (m_dir) {
+    case 0:
+      return {m_x, m_y - 16, m_dir};
+    case 1:
+      return {m_x - 16, m_y, m_dir};
+    case 2:
+      return {m_x, m_y + 16, m_dir};
+    case 3:
+      return {m_x + 16, m_y, m_dir};
+    }
+    return {0, 0, 0};
+  }
+};
+
+inline std::vector<std::unique_ptr<sf::Texture>>
+initTankTextures(const sf::Image &Sprites) {
+  int x{};
+  int y{};
+  int dX{};
+  int dY{};
+  int ofX{};
+  int ofY{};
+  std::vector<std::unique_ptr<sf::Texture>> objects{};
+
+  for (int type{0}; type < 8; ++type) {
+    for (int color{0}; color < 4; ++color) {
+      for (int dir{0}; dir < 4; ++dir) {
+        for (int anim{0}; anim < 2; ++anim) {
+
+          switch (type) {
+
+          case 0:
+            dX = 13;
+            dY = 13;
+            switch (dir) {
+            case 0:
+              ofX = 1;
+              ofY = 2;
+              break;
+            case 1:
+              ofX = 2;
+              ofY = 1;
+              break;
+            case 2:
+              ofX = 1;
+              ofY = 1;
+              break;
+            case 3:
+              ofX = 1;
+              ofY = 1;
+              break;
+            }
+            break;
+
+          default:
+            dX = 15;
+            dY = 15;
+            ofX = 1;
+            ofY = 1;
+          }
+
+          int x = dir * 32 + color % 2 * 128 + anim * 16;
+          int y = type * 16 + color / 2 * 128;
+          auto obj = std::make_unique<sf::Texture>(
+              Sprites, false, sf::IntRect({x + ofX, y + ofY}, {dX, dY}));
+          objects.push_back(std::move(obj));
+        }
+      }
+    }
+  }
+  return objects;
 };
