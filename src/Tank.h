@@ -131,13 +131,13 @@ public:
   std::tuple<int, int, int> getProjectilePos() const {
     switch (m_dir) {
     case 0:
-      return {m_x, m_y - m_dy, m_dir};
+      return {m_x + m_dx / 2 - 1, m_y - 1, m_dir};
     case 1:
-      return {m_x - m_dx, m_y, m_dir};
+      return {m_x - 1, m_y + m_dy / 2 - 1, m_dir};
     case 2:
-      return {m_x, m_y + m_dy, m_dir};
+      return {m_x + m_dx / 2 - 1, m_y + m_dy, m_dir};
     case 3:
-      return {m_x + m_dx, m_y, m_dir};
+      return {m_x + m_dx, m_y + m_dy / 2 - 1, m_dir};
     }
     return {0, 0, 0};
   }
