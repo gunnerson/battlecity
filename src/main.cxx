@@ -70,7 +70,7 @@ int main() {
   // User tank
   std::vector<std::unique_ptr<sf::Texture>> TankTextures =
       initTankTextures(Sprites);
-  auto userTank{std::make_unique<Tank>(0, 1, 1, 0, 64, 192, TankTextures)};
+  auto userTank{std::make_unique<Tank>(0, 1, 1, 0, 64, 195, TankTextures)};
   auto userTank_ptr = userTank.get();
   sf::Texture usertankTexture = userTank->getTexture();
   sf::Sprite userTankSprite(usertankTexture);
