@@ -21,6 +21,7 @@ public:
 
   int getX() const { return m_x; }
   int getY() const { return m_y; }
+  bool is_out() const { return m_out; }
 
   void move() {
     switch (m_dir) {

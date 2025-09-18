@@ -9,6 +9,7 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <algorithm>
 #include <cstddef>
+#include <iostream>
 #include <memory>
 #include <vector>
 
@@ -183,6 +184,11 @@ int main() {
       Projectiles.erase(Projectiles.begin() + i);
     }
     CollidedProjeectiles.resize(0);
+    for (std::size_t i{0}; i < Projectiles.size(); ++i) {
+      if (Projectiles[i]->is_out()) {
+        Projectiles.erase(Projectiles.begin() + i);
+      }
+    }
 
     window.display();
   }
