@@ -44,9 +44,12 @@ void handleDownKeyReleased(Tank *tank) { g_down = false; }
 void handleRightKeyReleased(Tank *tank) { g_right = false; }
 void handleSpaceKeyPressed(
     Tank *tank, std::vector<std::unique_ptr<Projectile>> &Projectiles) {
-  auto [x, y, dir] = tank->getProjectilePos();
-  auto obj = std::make_unique<Projectile>(x, y, dir);
-  Projectiles.push_back(std::move(obj));
+  if (!tank->is_reloading()) {
+    auto [x, y, dir] = tank->getProjectilePos();
+    auto obj = std::make_unique<Projectile>(x, y, dir);
+    Projectiles.push_back(std::move(obj));
+    tank->startReload();
+  }
 }
 
 // main {{{1
@@ -136,6 +139,7 @@ int main() {
       userTank->updatePos(BrickWalls);
       userTank->setTexture(TankTextures);
     }
+    userTank->reload();
     usertankTexture = userTank->getTexture();
     userTankSprite.setTexture(usertankTexture);
     userTankSprite.setPosition({static_cast<float>(userTank->getX()),

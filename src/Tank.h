@@ -1,11 +1,13 @@
 #pragma once
 #include "BrickWall.h"
+#include "Projectile.h"
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Image.hpp>
 #include <SFML/Graphics/Texture.hpp>
 
 extern const int g_maxX;
 extern const int g_maxY;
+extern const int g_updateRate;
 extern bool g_up;
 extern bool g_left;
 extern bool g_down;
@@ -15,13 +17,14 @@ class Tank {
 private:
   int m_type{};
   int m_speed{};
-  int m_color{}; // 0 - yellow, 1 - white, 2 - green, 3 - purple
-  int m_dir{};   // 0 - up, 1 - left, 2 - down, 3 - right
-  int m_x{};     // X offset from top left corner
-  int m_y{};     // Y offset from top left corner
-  int m_dx{};    // Texture width
-  int m_dy{};    // Texture height
-  int m_anim{0}; // Movement animation counter
+  int m_color{};   // 0 - yellow, 1 - white, 2 - green, 3 - purple
+  int m_dir{};     // 0 - up, 1 - left, 2 - down, 3 - right
+  int m_x{};       // X offset from top left corner
+  int m_y{};       // Y offset from top left corner
+  int m_dx{};      // Texture width
+  int m_dy{};      // Texture height
+  int m_anim{0};   // Movement animation counter
+  int m_reload{0}; // Reloading
   sf::Texture m_texture1{};
   sf::Texture m_texture2{};
 
@@ -41,9 +44,15 @@ public:
 
   int getX() const { return m_x; }
   void setX(int x) { m_x = x; }
-
   int getY() const { return m_y; }
   void setY(int y) { m_y = y; }
+
+  bool is_reloading() const { return m_reload; }
+  void startReload() { m_reload = g_updateRate * 2; }
+  void reload() {
+    if (m_reload)
+      --m_reload;
+  }
 
   sf::Texture getTexture() const {
     return m_anim % 2 ? m_texture1 : m_texture2;
