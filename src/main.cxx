@@ -1,11 +1,13 @@
 //
 // imports {{{1
 #include "BrickWall.h"
+#include "Hit.h"
 #include "Projectile.h"
 #include "Tank.h"
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
+#include <cstddef>
 #include <memory>
 
 // globals {{{1
@@ -46,8 +48,7 @@ void handleSpaceKeyPressed(
     Tank *tank, std::vector<std::unique_ptr<Projectile>> &Projectiles) {
   if (!tank->is_reloading()) {
     auto [x, y, dir] = tank->getProjectilePos();
-    auto obj = std::make_unique<Projectile>(x, y, dir);
-    Projectiles.push_back(std::move(obj));
+    Projectiles.emplace_back(std::make_unique<Projectile>(x, y, dir));
     tank->startReload();
   }
 }
@@ -75,10 +76,9 @@ int main() {
   int brickWallsN = sizeof(brickWallsArray) / sizeof(brickWallsArray[0]);
   std::vector<std::unique_ptr<BrickWall>> BrickWalls{};
   for (int i{0}; i < brickWallsN; ++i) {
-    auto obj = std::make_unique<BrickWall>(brickWallsArray[i][0],
-                                           brickWallsArray[i][1],
-                                           brickWallsArray[i][2], Sprites);
-    BrickWalls.push_back(std::move(obj));
+    BrickWalls.emplace_back(std::make_unique<BrickWall>(
+        brickWallsArray[i][0], brickWallsArray[i][1], brickWallsArray[i][2],
+        Sprites));
   }
   sf::Texture brickWallTexture{BrickWalls[0]->getTexture()};
   sf::Sprite brickWallSprite(brickWallTexture);
@@ -87,6 +87,11 @@ int main() {
   std::vector<std::unique_ptr<sf::Texture>> ProjectileTextures =
       initProjectileTextures(Sprites);
   std::vector<std::unique_ptr<Projectile>> Projectiles{};
+
+  // Hits
+  std::vector<std::unique_ptr<sf::Texture>> HitTextures =
+      initHitTextures(Sprites);
+  std::vector<std::unique_ptr<Hit>> Hits{};
 
   // Handle events
   const auto onClose = [&window](const sf::Event::Closed &) { window.close(); };
@@ -125,13 +130,13 @@ int main() {
     window.clear();
 
     // Draw projectiles
-    for (const auto &obj : Projectiles) {
-      auto texture = obj->getTexture(ProjectileTextures);
+    for (const auto &projectile : Projectiles) {
+      auto texture = projectile->getTexture(ProjectileTextures);
       sf::Sprite sprite(texture);
-      sprite.setPosition(
-          {static_cast<float>(obj->getX()), static_cast<float>(obj->getY())});
+      sprite.setPosition({static_cast<float>(projectile->getX()),
+                          static_cast<float>(projectile->getY())});
       window.draw(sprite);
-      obj->move();
+      projectile->move();
     }
 
     // Draw user tank
@@ -147,15 +152,27 @@ int main() {
     window.draw(userTankSprite);
 
     // Draw brick walls
-    for (const auto &obj : BrickWalls) {
-      if (obj->is_alive()) {
-        brickWallTexture = obj->getTexture();
-        brickWallSprite.setTexture(brickWallTexture);
-        brickWallSprite.setPosition(
-            {static_cast<float>(obj->getX()), static_cast<float>(obj->getY())});
-        window.draw(brickWallSprite);
+    for (const auto &brickWall : BrickWalls) {
+      if (brickWall->is_alive()) {
+        for (std::size_t i{0}; i < Projectiles.size(); ++i) {
+          if (Projectiles[i]->checkCollision(brickWall->getX(),
+                                             brickWall->getY())) {
+            brickWall->kill();
+            Projectiles.erase(Projectiles.begin() + i);
+            break;
+          }
+        }
+        if (brickWall->is_alive()) {
+          brickWallTexture = brickWall->getTexture();
+          brickWallSprite.setTexture(brickWallTexture);
+          brickWallSprite.setPosition({static_cast<float>(brickWall->getX()),
+                                       static_cast<float>(brickWall->getY())});
+          window.draw(brickWallSprite);
+        }
       }
     }
+
+    // Draw hits
 
     window.display();
   }

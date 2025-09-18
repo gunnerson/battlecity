@@ -117,6 +117,7 @@ public:
   void setY(int y) { m_y = y; }
 
   bool is_alive() const { return m_alive; }
+  void kill() { m_alive = false; }
 
   sf::Texture getTexture() const { return m_texture; };
 };

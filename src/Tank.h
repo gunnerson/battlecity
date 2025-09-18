@@ -203,9 +203,8 @@ initTankTextures(const sf::Image &Sprites) {
 
           int x = dir * 32 + color % 2 * 128 + anim * 16;
           int y = type * 16 + color / 2 * 128;
-          auto obj = std::make_unique<sf::Texture>(
-              Sprites, false, sf::IntRect({x + ofX, y + ofY}, {dX, dY}));
-          objects.push_back(std::move(obj));
+          objects.emplace_back(std::make_unique<sf::Texture>(
+              Sprites, false, sf::IntRect({x + ofX, y + ofY}, {dX, dY})));
         }
       }
     }

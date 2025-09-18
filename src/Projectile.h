@@ -36,6 +36,16 @@ public:
     }
   }
 
+  bool checkCollision(int x, int y) {
+    if (((m_dir == 0) && (x + 4 > m_x) && (x < m_x + 3) && (y + 3 == m_y)) ||
+        ((m_dir == 1) && (y + 4 > m_y) && (y < m_y + 3) && (x + 3 == m_x)) ||
+        ((m_dir == 2) && (x + 4 > m_x) && (x < m_x + 3) && (y == m_y + 3)) ||
+        ((m_dir == 3) && (y + 4 > m_y) && (y < m_y + 3) && (x == m_x + 3))) {
+      return true;
+    }
+    return false;
+  }
+
   sf::Texture
   getTexture(const std::vector<std::unique_ptr<sf::Texture>> &Textures) const {
     return *Textures[m_dir];
@@ -45,17 +55,13 @@ public:
 inline std::vector<std::unique_ptr<sf::Texture>>
 initProjectileTextures(const sf::Image &Sprites) {
   std::vector<std::unique_ptr<sf::Texture>> objects{};
-  auto obj1 = std::make_unique<sf::Texture>(Sprites, false,
-                                            sf::IntRect({323, 102}, {3, 4}));
-  objects.push_back(std::move(obj1));
-  auto obj2 = std::make_unique<sf::Texture>(Sprites, false,
-                                            sf::IntRect({330, 102}, {4, 3}));
-  objects.push_back(std::move(obj2));
-  auto obj3 = std::make_unique<sf::Texture>(Sprites, false,
-                                            sf::IntRect({339, 102}, {3, 4}));
-  objects.push_back(std::move(obj3));
-  auto obj4 = std::make_unique<sf::Texture>(Sprites, false,
-                                            sf::IntRect({346, 102}, {4, 3}));
-  objects.push_back(std::move(obj4));
+  objects.emplace_back(std::make_unique<sf::Texture>(
+      Sprites, false, sf::IntRect({323, 102}, {3, 4})));
+  objects.emplace_back(std::make_unique<sf::Texture>(
+      Sprites, false, sf::IntRect({330, 102}, {4, 3})));
+  objects.emplace_back(std::make_unique<sf::Texture>(
+      Sprites, false, sf::IntRect({339, 102}, {3, 4})));
+  objects.emplace_back(std::make_unique<sf::Texture>(
+      Sprites, false, sf::IntRect({346, 102}, {4, 3})));
   return objects;
 };
