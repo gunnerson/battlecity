@@ -37,10 +37,10 @@ public:
   }
 
   bool checkCollision(int x, int y) {
-    if (((m_dir == 0) && (x + 4 > m_x) && (x < m_x + 3) && (y + 3 == m_y)) ||
-        ((m_dir == 1) && (y + 4 > m_y) && (y < m_y + 3) && (x + 3 == m_x)) ||
-        ((m_dir == 2) && (x + 4 > m_x) && (x < m_x + 3) && (y == m_y + 3)) ||
-        ((m_dir == 3) && (y + 4 > m_y) && (y < m_y + 3) && (x == m_x + 3))) {
+    if ((!(m_dir % 2) && (x + 4 > m_x) && (x < m_x + 3) && (y + 4 > m_y) &&
+         (y < m_y + 4)) ||
+        ((m_dir % 2) && (y + 4 > m_y) && (y < m_y + 3) && (x + 4 > m_x) &&
+         (x < m_x + 4))) {
       return true;
     }
     return false;

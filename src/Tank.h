@@ -48,7 +48,8 @@ public:
   void setY(int y) { m_y = y; }
 
   bool is_reloading() const { return m_reload; }
-  void startReload() { m_reload = g_updateRate * 2; }
+  // void startReload() { m_reload = g_updateRate * 2; }
+  void startReload() { m_reload = 1; }
   void reload() {
     if (m_reload)
       --m_reload;
@@ -78,12 +79,14 @@ public:
     // Going UP
     if (m_dir == 0 and m_y != 0) {
       for (const auto &obj : BrickWalls) {
-        int x = obj->getX();
-        int y = obj->getY();
-        if ((x + 4 > m_x) && (x < m_x + m_dx) && (y + 4 == m_y)) {
-          collisionDetected = true;
-          break;
-        };
+        if (obj->is_alive()) {
+          int x = obj->getX();
+          int y = obj->getY();
+          if ((x + 4 > m_x) && (x < m_x + m_dx) && (y + 4 == m_y)) {
+            collisionDetected = true;
+            break;
+          }
+        }
       }
       if (!collisionDetected) {
         m_y -= m_speed;
@@ -93,12 +96,14 @@ public:
       // Going Left
     } else if (m_dir == 1 and m_x != 0) {
       for (const auto &obj : BrickWalls) {
-        int x = obj->getX();
-        int y = obj->getY();
-        if ((y + 4 > m_y) && (y < m_y + m_dy) && (x + 4 == m_x)) {
-          collisionDetected = true;
-          break;
-        };
+        if (obj->is_alive()) {
+          int x = obj->getX();
+          int y = obj->getY();
+          if ((y + 4 > m_y) && (y < m_y + m_dy) && (x + 4 == m_x)) {
+            collisionDetected = true;
+            break;
+          }
+        }
       }
       if (!collisionDetected) {
         m_x -= m_speed;
@@ -108,12 +113,14 @@ public:
       // Going Down
     } else if (m_dir == 2 and m_y != g_maxY - m_dy) {
       for (const auto &obj : BrickWalls) {
-        int x = obj->getX();
-        int y = obj->getY();
-        if ((x + 4 > m_x) && (x < m_x + m_dx) && (y == m_y + m_dy)) {
-          collisionDetected = true;
-          break;
-        };
+        if (obj->is_alive()) {
+          int x = obj->getX();
+          int y = obj->getY();
+          if ((x + 4 > m_x) && (x < m_x + m_dx) && (y == m_y + m_dy)) {
+            collisionDetected = true;
+            break;
+          }
+        }
       }
       if (!collisionDetected) {
         m_y += m_speed;
@@ -123,12 +130,14 @@ public:
       // Going Right
     } else if (m_dir == 3 and m_x != g_maxX - m_dx) {
       for (const auto &obj : BrickWalls) {
-        int x = obj->getX();
-        int y = obj->getY();
-        if ((y + 4 > m_y) && (y < m_y + m_dy) && (x == m_x + m_dx)) {
-          collisionDetected = true;
-          break;
-        };
+        if (obj->is_alive()) {
+          int x = obj->getX();
+          int y = obj->getY();
+          if ((y + 4 > m_y) && (y < m_y + m_dy) && (x == m_x + m_dx)) {
+            collisionDetected = true;
+            break;
+          }
+        }
       }
       if (!collisionDetected) {
         m_x += m_speed;

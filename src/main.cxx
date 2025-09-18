@@ -7,8 +7,10 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
+#include <algorithm>
 #include <cstddef>
 #include <memory>
+#include <vector>
 
 // globals {{{1
 constexpr int g_maxX = 208;
@@ -87,6 +89,7 @@ int main() {
   std::vector<std::unique_ptr<sf::Texture>> ProjectileTextures =
       initProjectileTextures(Sprites);
   std::vector<std::unique_ptr<Projectile>> Projectiles{};
+  std::vector<int> CollidedProjeectiles{};
 
   // Hits
   std::vector<std::unique_ptr<sf::Texture>> HitTextures =
@@ -158,7 +161,10 @@ int main() {
           if (Projectiles[i]->checkCollision(brickWall->getX(),
                                              brickWall->getY())) {
             brickWall->kill();
-            Projectiles.erase(Projectiles.begin() + i);
+            if (std::find(CollidedProjeectiles.begin(),
+                          CollidedProjeectiles.end(),
+                          i) == CollidedProjeectiles.end())
+              CollidedProjeectiles.push_back(i);
             break;
           }
         }
@@ -172,7 +178,11 @@ int main() {
       }
     }
 
-    // Draw hits
+    // Clean projectiles
+    for (const auto i : CollidedProjeectiles) {
+      Projectiles.erase(Projectiles.begin() + i);
+    }
+    CollidedProjeectiles.resize(0);
 
     window.display();
   }
