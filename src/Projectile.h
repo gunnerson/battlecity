@@ -5,6 +5,8 @@
 #include <utility>
 
 extern const int g_updateRate;
+extern const int g_maxX;
+extern const int g_maxY;
 
 class Projectile {
 private:
@@ -12,6 +14,7 @@ private:
   int m_y{};
   int m_dir{}; // 0 - up, 1 - left, 2 - down, 3 - right
   int m_speed{3};
+  bool m_out{false};
 
 public:
   Projectile(int x, int y, int dir) : m_x{x}, m_y{y}, m_dir{dir} {}
@@ -34,6 +37,8 @@ public:
       m_x += m_speed;
       break;
     }
+    if (m_x < 0 || m_y < 0 || m_x >= g_maxX || m_y >= g_maxY)
+      m_out = true;
   }
 
   bool checkCollision(int x, int y) {

@@ -1,6 +1,5 @@
 #pragma once
 #include "BrickWall.h"
-#include "Projectile.h"
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Image.hpp>
 #include <SFML/Graphics/Texture.hpp>
