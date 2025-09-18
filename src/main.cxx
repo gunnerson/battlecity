@@ -179,11 +179,25 @@ int main() {
       }
     }
 
-    // Clean projectiles
+    // Draw hits
     for (const auto i : CollidedProjeectiles) {
+      auto [x, y] = Projectiles[i]->getHitPos();
+      Hits.emplace_back(std::make_unique<Hit>(x, y));
       Projectiles.erase(Projectiles.begin() + i);
     }
     CollidedProjeectiles.resize(0);
+    for (std::size_t i{0}; i < Hits.size(); ++i) {
+      if (Hits[i]->is_alive()) {
+        auto hitTexture = Hits[i]->getTexture(HitTextures);
+        auto hitSprite = sf::Sprite(hitTexture);
+        hitSprite.setPosition({static_cast<float>(Hits[i]->getX()),
+                               static_cast<float>(Hits[i]->getY())});
+        window.draw(hitSprite);
+        Hits[i]->anim();
+      }
+    }
+
+    // Clean projectiles
     for (std::size_t i{0}; i < Projectiles.size(); ++i) {
       if (Projectiles[i]->is_out()) {
         Projectiles.erase(Projectiles.begin() + i);

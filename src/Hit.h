@@ -14,6 +14,12 @@ private:
 public:
   Hit(int x, int y) : m_x{x}, m_y{y} {}
 
+  int getX() const { return m_x; }
+  int getY() const { return m_y; }
+
+  bool is_alive() const { return m_anim < 4; }
+  void anim() { ++m_anim; }
+
   sf::Texture
   getTexture(const std::vector<std::unique_ptr<sf::Texture>> &Textures) const {
     return *Textures[m_anim];

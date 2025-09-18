@@ -56,6 +56,20 @@ public:
   getTexture(const std::vector<std::unique_ptr<sf::Texture>> &Textures) const {
     return *Textures[m_dir];
   };
+
+  std::pair<int, int> getHitPos() const {
+    switch (m_dir) {
+    case 0:
+      return {m_x + 1, m_y};
+    case 1:
+      return {m_x, m_y + 1};
+    case 2:
+      return {m_x + 1, m_y + 3};
+    case 3:
+      return {m_x + 3, m_y + 1};
+    }
+    return {0, 0};
+  }
 };
 
 inline std::vector<std::unique_ptr<sf::Texture>>
