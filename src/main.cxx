@@ -7,7 +7,6 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
-#include <algorithm>
 #include <cstddef>
 #include <iostream>
 #include <memory>
@@ -17,6 +16,7 @@
 constexpr int g_maxX{208};
 constexpr int g_maxY{208};
 constexpr int g_updateRate{30};
+int g_stage{0};
 bool g_up{false};
 bool g_left{false};
 bool g_down{false};
@@ -77,15 +77,12 @@ int main() {
   sf::Sprite userTankSprite(*usertankTexture);
 
   // Brick walls
-  int brickWallsN{sizeof(brickWallsArray) / sizeof(brickWallsArray[0])};
-  std::vector<std::unique_ptr<BrickWall>> BrickWalls{};
-  for (int i{0}; i < brickWallsN; ++i) {
-    BrickWalls.emplace_back(std::make_unique<BrickWall>(
-        brickWallsArray[i][0], brickWallsArray[i][1], brickWallsArray[i][2],
-        Sprites));
-  }
-  sf::Texture brickWallTexture{BrickWalls[0]->getTexture()};
-  sf::Sprite brickWallSprite(brickWallTexture);
+  std::vector<std::shared_ptr<sf::Texture>> BrickWallTextures{
+      initBrickWallTextures(Sprites)};
+  std::vector<std::unique_ptr<BrickWall>> BrickWalls{initBrickWalls()};
+  std::shared_ptr<sf::Texture> brickWallTexture{
+      BrickWalls[0]->getTexture(BrickWallTextures)};
+  sf::Sprite brickWallSprite(*brickWallTexture);
 
   // Projectiles
   std::vector<std::unique_ptr<sf::Texture>> ProjectileTextures{
@@ -170,8 +167,8 @@ int main() {
     // Draw brick walls
     for (const auto &brickWall : BrickWalls) {
       if (brickWall->is_alive()) {
-        brickWallTexture = brickWall->getTexture();
-        brickWallSprite.setTexture(brickWallTexture);
+        brickWallTexture = brickWall->getTexture(BrickWallTextures);
+        brickWallSprite.setTexture(*brickWallTexture);
         brickWallSprite.setPosition({static_cast<float>(brickWall->getX()),
                                      static_cast<float>(brickWall->getY())});
         window.draw(brickWallSprite);
