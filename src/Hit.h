@@ -20,18 +20,21 @@ public:
   int getY() const { return m_y; }
   int getAnim() const { return m_anim; }
 
-  bool is_alive() const { return m_anim < 3; }
+  bool is_alive() const { return m_anim < g_updateRate * 3 / 15 - 1; }
   void anim() { ++m_anim; }
 
   bool checkBlast(int x, int y) {
-    int x0{m_x / 8 * 8};
-    int y0{m_y / 8 * 8};
-    int x1{(x - x0 > 3) ? x0 + 8 : x0 - 8};
-    int y1{(y - y0 > 3) ? y0 + 8 : y0 - 8};
-    if (((m_dir == 0) && (y + 3 == m_y) && (x >= m_x - 11) && (x <= m_x + 5)) ||
-        ((m_dir == 1) && (x == m_x) && (y >= m_y - 11) && (y <= m_y + 5)) ||
-        ((m_dir == 3) && (x == m_x) &&
-         ((y == y0) || (y == y0 + 4) || (y == y1) || (y == y1 + 4)))) {
+    if (((m_dir == 0) && (y == m_y + 4) &&
+         ((x == m_x) || (x == m_x + 4) || (x == m_x + 8) || (x == m_x + 12))) ||
+
+        ((m_dir == 1) && (x == m_x + 4) &&
+         ((y == m_y) || (y == m_y + 4) || (y == m_y + 8) || (y == m_y + 12))) ||
+
+        ((m_dir == 2) && (y == m_y + 8) &&
+         ((x == m_x) || (x == m_x + 4) || (x == m_x + 8) || (x == m_x + 12))) ||
+
+        ((m_dir == 3) && (x == m_x + 8) &&
+         ((y == m_y) || (y == m_y + 4) || (y == m_y + 8) || (y == m_y + 12)))) {
       return true;
     }
     return false;
@@ -39,7 +42,7 @@ public:
 
   sf::Texture
   getTexture(const std::vector<std::unique_ptr<sf::Texture>> &Textures) const {
-    return *Textures[m_anim];
+    return *Textures[m_anim * 15 / g_updateRate];
   };
 };
 

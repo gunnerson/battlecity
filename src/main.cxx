@@ -68,12 +68,13 @@ int main() {
   const sf::Image Sprites("res/sprites.png");
 
   // User tank
-  std::vector<std::unique_ptr<sf::Texture>> TankTextures{
+  std::vector<std::shared_ptr<sf::Texture>> TankTextures{
       initTankTextures(Sprites)};
   auto userTank{std::make_unique<Tank>(0, 1, 0, 0, 64, 195, TankTextures)};
   auto userTank_ptr{userTank.get()};
-  sf::Texture usertankTexture{userTank->getTexture()};
-  sf::Sprite userTankSprite(usertankTexture);
+  std::shared_ptr<sf::Texture> usertankTexture{
+      userTank->getTexture(TankTextures)};
+  sf::Sprite userTankSprite(*usertankTexture);
 
   // Brick walls
   int brickWallsN{sizeof(brickWallsArray) / sizeof(brickWallsArray[0])};
@@ -90,7 +91,6 @@ int main() {
   std::vector<std::unique_ptr<sf::Texture>> ProjectileTextures{
       initProjectileTextures(Sprites)};
   std::vector<std::unique_ptr<Projectile>> Projectiles{};
-  std::vector<int> CollidedProjeectiles{};
 
   // Hits
   std::vector<std::unique_ptr<sf::Texture>> HitTextures{
@@ -134,23 +134,35 @@ int main() {
     window.clear();
 
     // Draw projectiles
-    for (const auto &projectile : Projectiles) {
-      auto texture{projectile->getTexture(ProjectileTextures)};
+    for (std::size_t i{0}; i < Projectiles.size(); ++i) {
+      Projectiles[i]->move();
+      auto texture{Projectiles[i]->getTexture(ProjectileTextures)};
       sf::Sprite sprite(texture);
-      sprite.setPosition({static_cast<float>(projectile->getX()),
-                          static_cast<float>(projectile->getY())});
+      sprite.setPosition({static_cast<float>(Projectiles[i]->getX()),
+                          static_cast<float>(Projectiles[i]->getY())});
       window.draw(sprite);
-      projectile->move();
+      for (const auto &brickWall : BrickWalls) {
+        if (brickWall->is_alive()) {
+          if (Projectiles[i]->checkCollision(brickWall->getX(),
+                                             brickWall->getY())) {
+            auto [x, y, dir]{Projectiles[i]->getHitPos()};
+            std::cout << "Hit at x=" << x << " y=" << y << " dir=" << dir
+                      << std::endl;
+            Hits.emplace_back(std::make_unique<Hit>(x, y, dir));
+            Projectiles.erase(Projectiles.begin() + i);
+            break;
+          }
+        }
+      }
     }
 
     // Draw user tank
     if (g_up || g_left || g_down || g_right) {
       userTank->updatePos(BrickWalls);
-      userTank->setTexture(TankTextures);
     }
     userTank->reload();
-    usertankTexture = userTank->getTexture();
-    userTankSprite.setTexture(usertankTexture);
+    usertankTexture = userTank->getTexture(TankTextures);
+    userTankSprite.setTexture(*usertankTexture);
     userTankSprite.setPosition({static_cast<float>(userTank->getX()),
                                 static_cast<float>(userTank->getY())});
     window.draw(userTankSprite);
@@ -158,36 +170,15 @@ int main() {
     // Draw brick walls
     for (const auto &brickWall : BrickWalls) {
       if (brickWall->is_alive()) {
-        for (std::size_t i{0}; i < Projectiles.size(); ++i) {
-          if (Projectiles[i]->checkCollision(brickWall->getX(),
-                                             brickWall->getY())) {
-            brickWall->kill();
-            if (std::find(CollidedProjeectiles.begin(),
-                          CollidedProjeectiles.end(),
-                          i) == CollidedProjeectiles.end())
-              CollidedProjeectiles.push_back(i);
-            break;
-          }
-        }
-        if (brickWall->is_alive()) {
-          brickWallTexture = brickWall->getTexture();
-          brickWallSprite.setTexture(brickWallTexture);
-          brickWallSprite.setPosition({static_cast<float>(brickWall->getX()),
-                                       static_cast<float>(brickWall->getY())});
-          window.draw(brickWallSprite);
-        }
+        brickWallTexture = brickWall->getTexture();
+        brickWallSprite.setTexture(brickWallTexture);
+        brickWallSprite.setPosition({static_cast<float>(brickWall->getX()),
+                                     static_cast<float>(brickWall->getY())});
+        window.draw(brickWallSprite);
       }
     }
 
     // Draw hits
-    for (const auto i : CollidedProjeectiles) {
-      auto [x, y, dir]{Projectiles[i]->getHitPos()};
-      std::cout << "Hit at x=" << x << " y=" << y << " dir=" << dir
-                << std::endl;
-      Hits.emplace_back(std::make_unique<Hit>(x, y, dir));
-      Projectiles.erase(Projectiles.begin() + i);
-    }
-    CollidedProjeectiles.resize(0);
     for (std::size_t i{0}; i < Hits.size(); ++i) {
       if (Hits[i]->is_alive()) {
         auto hitTexture{Hits[i]->getTexture(HitTextures)};

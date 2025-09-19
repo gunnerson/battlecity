@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Image.hpp>
 #include <SFML/Graphics/Texture.hpp>
+#include <memory>
 
 extern const int g_maxX;
 extern const int g_maxY;
@@ -24,16 +25,14 @@ private:
   int m_dy{};      // Texture height
   int m_anim{0};   // Movement animation counter
   int m_reload{0}; // Reloading
-  sf::Texture m_texture1{};
-  sf::Texture m_texture2{};
 
 public:
   Tank(int type, int speed, int color, int dir, int x, int y,
-       const std::vector<std::unique_ptr<sf::Texture>> &Textures)
+       const std::vector<std::shared_ptr<sf::Texture>> &Textures)
       : m_type{type}, m_speed{speed}, m_color{color}, m_dir{dir}, m_x{x},
         m_y{y} {
-    setTexture(Textures);
-    auto textureSize{m_texture1.getSize()};
+    auto texture{*getTexture(Textures)};
+    auto textureSize{texture.getSize()};
     m_dx = textureSize.x;
     m_dy = textureSize.y;
   }
@@ -54,14 +53,10 @@ public:
       --m_reload;
   }
 
-  sf::Texture getTexture() const {
-    return m_anim % 2 ? m_texture1 : m_texture2;
-  };
-
-  void setTexture(const std::vector<std::unique_ptr<sf::Texture>> &Textures) {
+  std::shared_ptr<sf::Texture>
+  getTexture(const std::vector<std::shared_ptr<sf::Texture>> &Textures) const {
     int idx{m_type * 32 + m_color * 8 + m_dir * 2};
-    m_texture1 = *Textures[idx];
-    m_texture2 = *Textures[++idx];
+    return m_anim % 2 ? Textures[idx] : Textures[++idx];
   };
 
   void updatePos(const std::vector<std::unique_ptr<BrickWall>> &BrickWalls) {
@@ -148,19 +143,19 @@ public:
   std::tuple<int, int, int> getProjectilePos() const {
     switch (m_dir) {
     case 0:
-      return {m_x + m_dx / 2 - 1, m_y - 1, m_dir};
+      return {m_x + m_dx / 2 - 1, m_y, m_dir};
     case 1:
-      return {m_x - 1, m_y + m_dy / 2 - 1, m_dir};
+      return {m_x, m_y + m_dy / 2 - 1, m_dir};
     case 2:
-      return {m_x + m_dx / 2 - 1, m_y + m_dy, m_dir};
+      return {m_x + m_dx / 2 - 1, m_y + m_dy - 4, m_dir};
     case 3:
-      return {m_x + m_dx, m_y + m_dy / 2 - 1, m_dir};
+      return {m_x + m_dx - 4, m_y + m_dy / 2 - 1, m_dir};
     }
     return {0, 0, 0};
   }
 };
 
-inline std::vector<std::unique_ptr<sf::Texture>>
+inline std::vector<std::shared_ptr<sf::Texture>>
 initTankTextures(const sf::Image &Sprites) {
   int x{};
   int y{};
@@ -168,7 +163,7 @@ initTankTextures(const sf::Image &Sprites) {
   int dY{};
   int ofX{};
   int ofY{};
-  std::vector<std::unique_ptr<sf::Texture>> objects{};
+  std::vector<std::shared_ptr<sf::Texture>> objects{};
 
   for (int type{0}; type < 8; ++type) {
     for (int color{0}; color < 4; ++color) {
@@ -211,7 +206,7 @@ initTankTextures(const sf::Image &Sprites) {
 
           int x{dir * 32 + color % 2 * 128 + anim * 16};
           int y{type * 16 + color / 2 * 128};
-          objects.emplace_back(std::make_unique<sf::Texture>(
+          objects.emplace_back(std::make_shared<sf::Texture>(
               Sprites, false, sf::IntRect({x + ofX, y + ofY}, {dX, dY})));
         }
       }

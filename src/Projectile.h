@@ -58,16 +58,25 @@ public:
   };
 
   std::tuple<int, int, int> getHitPos() const {
+    int x0{};
+    int y0{};
     switch (m_dir) {
     case 0:
-      return {m_x / 4 * 4, m_y / 4 * 4, m_dir};
+      x0 = (m_x + 1) / 8 * 8;
+      y0 = m_y / 4 * 4 - 4;
+      return {(m_x - x0 > 3) ? x0 : x0 - 8, y0, m_dir};
     case 1:
-      return {m_x / 4 * 4, m_y / 4 * 4, m_dir};
+      x0 = m_x / 4 * 4 - 4;
+      y0 = (m_y + 1) / 8 * 8;
+      return {x0, (m_y - y0 > 3) ? y0 : y0 - 8, m_dir};
     case 2:
-      return {m_x / 4 * 4, (m_y + 4) / 4 * 4, m_dir};
+      x0 = (m_x + 1) / 8 * 8;
+      y0 = (m_y + 3) / 4 * 4 - 8;
+      return {(m_x - x0 > 3) ? x0 : x0 - 8, y0, m_dir};
     case 3:
-      int x0{(m_x + 3) / 8 * 8};
-      return {(m_x + 4) / 4L * 4, m_y / 4L * 4, m_dir};
+      x0 = (m_x + 3) / 4 * 4 - 8;
+      y0 = (m_y + 1) / 8 * 8;
+      return {x0, (m_y - y0 > 3) ? y0 : y0 - 8, m_dir};
     }
     return {0, 0, 0};
   }
