@@ -33,7 +33,7 @@ public:
       : m_type{type}, m_speed{speed}, m_color{color}, m_dir{dir}, m_x{x},
         m_y{y} {
     setTexture(Textures);
-    auto textureSize = m_texture1.getSize();
+    auto textureSize{m_texture1.getSize()};
     m_dx = textureSize.x;
     m_dy = textureSize.y;
   }
@@ -59,7 +59,7 @@ public:
   };
 
   void setTexture(const std::vector<std::unique_ptr<sf::Texture>> &Textures) {
-    int idx = m_type * 32 + m_color * 8 + m_dir * 2;
+    int idx{m_type * 32 + m_color * 8 + m_dir * 2};
     m_texture1 = *Textures[idx];
     m_texture2 = *Textures[++idx];
   };
@@ -79,8 +79,8 @@ public:
     if (m_dir == 0 and m_y != 0) {
       for (const auto &obj : BrickWalls) {
         if (obj->is_alive()) {
-          int x = obj->getX();
-          int y = obj->getY();
+          int x{obj->getX()};
+          int y{obj->getY()};
           if ((x + 4 > m_x) && (x < m_x + m_dx) && (y + 4 == m_y)) {
             collisionDetected = true;
             break;
@@ -96,8 +96,8 @@ public:
     } else if (m_dir == 1 and m_x != 0) {
       for (const auto &obj : BrickWalls) {
         if (obj->is_alive()) {
-          int x = obj->getX();
-          int y = obj->getY();
+          int x{obj->getX()};
+          int y{obj->getY()};
           if ((y + 4 > m_y) && (y < m_y + m_dy) && (x + 4 == m_x)) {
             collisionDetected = true;
             break;
@@ -113,8 +113,8 @@ public:
     } else if (m_dir == 2 and m_y != g_maxY - m_dy) {
       for (const auto &obj : BrickWalls) {
         if (obj->is_alive()) {
-          int x = obj->getX();
-          int y = obj->getY();
+          int x{obj->getX()};
+          int y{obj->getY()};
           if ((x + 4 > m_x) && (x < m_x + m_dx) && (y == m_y + m_dy)) {
             collisionDetected = true;
             break;
@@ -130,8 +130,8 @@ public:
     } else if (m_dir == 3 and m_x != g_maxX - m_dx) {
       for (const auto &obj : BrickWalls) {
         if (obj->is_alive()) {
-          int x = obj->getX();
-          int y = obj->getY();
+          int x{obj->getX()};
+          int y{obj->getY()};
           if ((y + 4 > m_y) && (y < m_y + m_dy) && (x == m_x + m_dx)) {
             collisionDetected = true;
             break;
@@ -209,8 +209,8 @@ initTankTextures(const sf::Image &Sprites) {
             ofY = 1;
           }
 
-          int x = dir * 32 + color % 2 * 128 + anim * 16;
-          int y = type * 16 + color / 2 * 128;
+          int x{dir * 32 + color % 2 * 128 + anim * 16};
+          int y{type * 16 + color / 2 * 128};
           objects.emplace_back(std::make_unique<sf::Texture>(
               Sprites, false, sf::IntRect({x + ofX, y + ofY}, {dX, dY})));
         }

@@ -2,7 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
-#include <utility>
+#include <tuple>
 
 extern const int g_updateRate;
 extern const int g_maxX;
@@ -57,18 +57,19 @@ public:
     return *Textures[m_dir];
   };
 
-  std::pair<int, int> getHitPos() const {
+  std::tuple<int, int, int> getHitPos() const {
     switch (m_dir) {
     case 0:
-      return {m_x + 1, m_y};
+      return {m_x / 4 * 4, m_y / 4 * 4, m_dir};
     case 1:
-      return {m_x, m_y + 1};
+      return {m_x / 4 * 4, m_y / 4 * 4, m_dir};
     case 2:
-      return {m_x + 1, m_y + 3};
+      return {m_x / 4 * 4, (m_y + 4) / 4 * 4, m_dir};
     case 3:
-      return {m_x + 3, m_y + 1};
+      int x0{(m_x + 3) / 8 * 8};
+      return {(m_x + 4) / 4L * 4, m_y / 4L * 4, m_dir};
     }
-    return {0, 0};
+    return {0, 0, 0};
   }
 };
 

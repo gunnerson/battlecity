@@ -14,13 +14,13 @@
 #include <vector>
 
 // globals {{{1
-constexpr int g_maxX = 208;
-constexpr int g_maxY = 208;
-constexpr int g_updateRate = 30;
-bool g_up = false;
-bool g_left = false;
-bool g_down = false;
-bool g_right = false;
+constexpr int g_maxX{208};
+constexpr int g_maxY{208};
+constexpr int g_updateRate{30};
+bool g_up{false};
+bool g_left{false};
+bool g_down{false};
+bool g_right{false};
 
 // events {{{1
 void handleUpKeyPressed(Tank *tank) {
@@ -58,25 +58,25 @@ void handleSpaceKeyPressed(
 
 // main {{{1
 int main() {
-  auto window =
+  auto window{
       sf::RenderWindow(sf::VideoMode({static_cast<unsigned int>(g_maxX),
                                       static_cast<unsigned int>(g_maxY)}),
-                       "Battlecity");
+                       "Battlecity")};
   window.setFramerateLimit(g_updateRate);
   window.setKeyRepeatEnabled(false);
 
   const sf::Image Sprites("res/sprites.png");
 
   // User tank
-  std::vector<std::unique_ptr<sf::Texture>> TankTextures =
-      initTankTextures(Sprites);
-  auto userTank{std::make_unique<Tank>(0, 1, 1, 0, 64, 195, TankTextures)};
-  auto userTank_ptr = userTank.get();
-  sf::Texture usertankTexture = userTank->getTexture();
+  std::vector<std::unique_ptr<sf::Texture>> TankTextures{
+      initTankTextures(Sprites)};
+  auto userTank{std::make_unique<Tank>(0, 1, 0, 0, 64, 195, TankTextures)};
+  auto userTank_ptr{userTank.get()};
+  sf::Texture usertankTexture{userTank->getTexture()};
   sf::Sprite userTankSprite(usertankTexture);
 
   // Brick walls
-  int brickWallsN = sizeof(brickWallsArray) / sizeof(brickWallsArray[0]);
+  int brickWallsN{sizeof(brickWallsArray) / sizeof(brickWallsArray[0])};
   std::vector<std::unique_ptr<BrickWall>> BrickWalls{};
   for (int i{0}; i < brickWallsN; ++i) {
     BrickWalls.emplace_back(std::make_unique<BrickWall>(
@@ -87,21 +87,21 @@ int main() {
   sf::Sprite brickWallSprite(brickWallTexture);
 
   // Projectiles
-  std::vector<std::unique_ptr<sf::Texture>> ProjectileTextures =
-      initProjectileTextures(Sprites);
+  std::vector<std::unique_ptr<sf::Texture>> ProjectileTextures{
+      initProjectileTextures(Sprites)};
   std::vector<std::unique_ptr<Projectile>> Projectiles{};
   std::vector<int> CollidedProjeectiles{};
 
   // Hits
-  std::vector<std::unique_ptr<sf::Texture>> HitTextures =
-      initHitTextures(Sprites);
+  std::vector<std::unique_ptr<sf::Texture>> HitTextures{
+      initHitTextures(Sprites)};
   std::vector<std::unique_ptr<Hit>> Hits{};
 
   // Handle events
-  const auto onClose = [&window](const sf::Event::Closed &) { window.close(); };
+  const auto onClose{[&window](const sf::Event::Closed &) { window.close(); }};
 
-  const auto onKeyPressed = [&window, &userTank_ptr, &Projectiles](
-                                const sf::Event::KeyPressed &keyPressed) {
+  const auto onKeyPressed{[&window, &userTank_ptr, &Projectiles](
+                              const sf::Event::KeyPressed &keyPressed) {
     if (keyPressed.scancode == sf::Keyboard::Scancode::Escape)
       window.close();
     else if (keyPressed.scancode == sf::Keyboard::Scancode::Up)
@@ -114,9 +114,9 @@ int main() {
       handleRightKeyPressed(userTank_ptr);
     else if (keyPressed.scancode == sf::Keyboard::Scancode::Space)
       handleSpaceKeyPressed(userTank_ptr, Projectiles);
-  };
+  }};
 
-  const auto onKeyReleased =
+  const auto onKeyReleased{
       [&window, &userTank_ptr](const sf::Event::KeyReleased &keyReleased) {
         if (keyReleased.scancode == sf::Keyboard::Scancode::Up)
           handleUpKeyReleased(userTank_ptr);
@@ -126,7 +126,7 @@ int main() {
           handleDownKeyReleased(userTank_ptr);
         else if (keyReleased.scancode == sf::Keyboard::Scancode::Right)
           handleRightKeyReleased(userTank_ptr);
-      };
+      }};
 
   // Main cycle
   while (window.isOpen()) {
@@ -135,7 +135,7 @@ int main() {
 
     // Draw projectiles
     for (const auto &projectile : Projectiles) {
-      auto texture = projectile->getTexture(ProjectileTextures);
+      auto texture{projectile->getTexture(ProjectileTextures)};
       sf::Sprite sprite(texture);
       sprite.setPosition({static_cast<float>(projectile->getX()),
                           static_cast<float>(projectile->getY())});
@@ -181,19 +181,30 @@ int main() {
 
     // Draw hits
     for (const auto i : CollidedProjeectiles) {
-      auto [x, y] = Projectiles[i]->getHitPos();
-      Hits.emplace_back(std::make_unique<Hit>(x, y));
+      auto [x, y, dir]{Projectiles[i]->getHitPos()};
+      std::cout << "Hit at x=" << x << " y=" << y << " dir=" << dir
+                << std::endl;
+      Hits.emplace_back(std::make_unique<Hit>(x, y, dir));
       Projectiles.erase(Projectiles.begin() + i);
     }
     CollidedProjeectiles.resize(0);
     for (std::size_t i{0}; i < Hits.size(); ++i) {
       if (Hits[i]->is_alive()) {
-        auto hitTexture = Hits[i]->getTexture(HitTextures);
-        auto hitSprite = sf::Sprite(hitTexture);
+        auto hitTexture{Hits[i]->getTexture(HitTextures)};
+        auto hitSprite{sf::Sprite(hitTexture)};
         hitSprite.setPosition({static_cast<float>(Hits[i]->getX()),
                                static_cast<float>(Hits[i]->getY())});
         window.draw(hitSprite);
         Hits[i]->anim();
+        if (Hits[i]->getAnim() == 1) {
+          for (const auto &brickWall : BrickWalls) {
+            if (Hits[i]->checkBlast(brickWall->getX(), brickWall->getY())) {
+              brickWall->kill();
+            }
+          }
+        }
+      } else {
+        Hits.erase(Hits.begin() + i);
       }
     }
 
@@ -201,6 +212,13 @@ int main() {
     for (std::size_t i{0}; i < Projectiles.size(); ++i) {
       if (Projectiles[i]->is_out()) {
         Projectiles.erase(Projectiles.begin() + i);
+      }
+    }
+
+    // Clean brick walls
+    for (std::size_t i{0}; i < BrickWalls.size(); ++i) {
+      if (!BrickWalls[i]->is_alive()) {
+        BrickWalls.erase(BrickWalls.begin() + i);
       }
     }
 
