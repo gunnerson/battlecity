@@ -24,17 +24,8 @@ public:
   void anim() { ++m_anim; }
 
   bool checkBlast(int x, int y) {
-    if (((m_dir == 0) && (y == m_y + 4) &&
-         ((x == m_x) || (x == m_x + 4) || (x == m_x + 8) || (x == m_x + 12))) ||
-
-        ((m_dir == 1) && (x == m_x + 4) &&
-         ((y == m_y) || (y == m_y + 4) || (y == m_y + 8) || (y == m_y + 12))) ||
-
-        ((m_dir == 2) && (y == m_y + 8) &&
-         ((x == m_x) || (x == m_x + 4) || (x == m_x + 8) || (x == m_x + 12))) ||
-
-        ((m_dir == 3) && (x == m_x + 8) &&
-         ((y == m_y) || (y == m_y + 4) || (y == m_y + 8) || (y == m_y + 12)))) {
+    if (((x == m_x) || (x == m_x + 4) || (x == m_x + 8) || (x == m_x + 12)) &&
+        ((y == m_y) || (y == m_y + 4) || (y == m_y + 8) || (y == m_y + 12))) {
       return true;
     }
     return false;

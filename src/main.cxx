@@ -143,8 +143,6 @@ int main() {
           if (Projectiles[i]->checkCollision(brickWall->getX(),
                                              brickWall->getY())) {
             auto [x, y, dir]{Projectiles[i]->getHitPos()};
-            std::cout << "Hit at x=" << x << " y=" << y << " dir=" << dir
-                      << std::endl;
             Hits.emplace_back(std::make_unique<Hit>(x, y, dir));
             Projectiles.erase(Projectiles.begin() + i);
             break;

@@ -63,18 +63,18 @@ public:
     switch (m_dir) {
     case 0:
       x0 = (m_x + 1) / 8 * 8;
-      y0 = m_y / 4 * 4 - 4;
+      y0 = m_y / 4 * 4;
       return {(m_x - x0 > 3) ? x0 : x0 - 8, y0, m_dir};
     case 1:
-      x0 = m_x / 4 * 4 - 4;
+      x0 = m_x / 4 * 4;
       y0 = (m_y + 1) / 8 * 8;
       return {x0, (m_y - y0 > 3) ? y0 : y0 - 8, m_dir};
     case 2:
       x0 = (m_x + 1) / 8 * 8;
-      y0 = (m_y + 3) / 4 * 4 - 8;
+      y0 = (m_y + 3) / 4 * 4 - 12;
       return {(m_x - x0 > 3) ? x0 : x0 - 8, y0, m_dir};
     case 3:
-      x0 = (m_x + 3) / 4 * 4 - 8;
+      x0 = (m_x + 3) / 4 * 4 - 12;
       y0 = (m_y + 1) / 8 * 8;
       return {x0, (m_y - y0 > 3) ? y0 : y0 - 8, m_dir};
     }
