@@ -2,7 +2,6 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
-#include <tuple>
 
 extern const int g_updateRate;
 extern const int g_maxX;

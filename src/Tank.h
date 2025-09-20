@@ -3,7 +3,6 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Image.hpp>
 #include <SFML/Graphics/Texture.hpp>
-#include <memory>
 
 extern const int g_maxX;
 extern const int g_maxY;

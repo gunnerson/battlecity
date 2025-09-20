@@ -4,8 +4,6 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
-#include <cstddef>
-#include <vector>
 
 extern int g_stage;
 
@@ -56,9 +54,6 @@ private:
 
 public:
   BrickWall(int x, int y, int texture) : m_x{x}, m_y{y}, m_texture{texture} {}
-  // m_texture{
-  //     sf::Texture(Sprites, false,
-  //                 sf::IntRect({256 + t % 4 * 4, t / 4 * 4}, {4, 4}))} {}
 
   int getX() const { return m_x; }
   void setX(int x) { m_x = x; }

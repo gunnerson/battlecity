@@ -7,10 +7,6 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
-#include <cstddef>
-#include <iostream>
-#include <memory>
-#include <vector>
 
 // globals {{{1
 constexpr int g_maxX{208};
