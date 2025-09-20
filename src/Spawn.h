@@ -1,7 +1,6 @@
 #pragma once
-#include <SFML/Graphics.hpp>
-#include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
+#include <vector>
 
 extern const int g_updateRate;
 

@@ -1,8 +1,7 @@
 #pragma once
 #include "BrickWall.h"
-#include <SFML/Graphics.hpp>
-#include <SFML/Graphics/Image.hpp>
 #include <SFML/Graphics/Texture.hpp>
+#include <vector>
 
 extern const int g_maxX;
 extern const int g_maxY;
