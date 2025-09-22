@@ -31,16 +31,88 @@ extern int g_stage;
 const std::vector<std::vector<std::vector<int>>> brickWallsArray = {
     // Stage 01
     {
-        // at 5, 11
-        {80, 176, 0},
-        // at 6, 11
-        {96, 176, 0},
-        // at 7, 11
-        {112, 176, 0},
-        // at 5, 12
-        {80, 192, 0},
-        // at 7, 12
-        {112, 192, 0},
+        {16, 16, 0},
+        {48, 16, 0},
+        {80, 16, 0},
+        {112, 16, 0},
+        {144, 16, 0},
+        {176, 16, 0},
+
+        {16, 32, 0},
+        {48, 32, 0},
+        {80, 32, 0},
+        {112, 32, 0},
+        {144, 32, 0},
+        {176, 32, 0},
+
+        {16, 48, 0},
+        {48, 48, 0},
+        {80, 48, 0},
+        {112, 48, 0},
+        {144, 48, 0},
+        {176, 48, 0},
+
+        {16, 64, 2},
+        {48, 64, 2},
+        {80, 64, 2},
+        {112, 64, 2},
+        {144, 64, 2},
+        {176, 64, 2},
+
+        {16, 72, 0},
+        {48, 72, 0},
+        {144, 72, 0},
+        {176, 72, 0},
+
+        {80, 88, 0},
+        {112, 88, 0},
+
+        {0, 104, 2},
+        {32, 104, 0},
+        {48, 104, 0},
+        {32, 104, 0},
+        {144, 104, 0},
+        {160, 104, 0},
+        {192, 104, 2},
+
+        {80, 120, 2},
+        {112, 120, 2},
+
+        {80, 128, 0},
+        {96, 128, 0},
+        {112, 128, 0},
+
+        {16, 136, 2},
+        {48, 136, 2},
+        {144, 136, 2},
+        {176, 136, 2},
+
+        {16, 144, 0},
+        {48, 144, 0},
+        {80, 144, 0},
+        {112, 144, 0},
+        {144, 144, 0},
+        {176, 144, 0},
+
+        {16, 160, 0},
+        {48, 160, 0},
+        {80, 160, 2},
+        {112, 160, 2},
+        {144, 160, 0},
+        {176, 160, 0},
+
+        {16, 176, 0},
+        {48, 176, 0},
+        {144, 176, 0},
+        {176, 176, 0},
+
+        // Base
+        {88, 184, 2},
+        {104, 184, 2},
+        {88, 192, 3},
+        {112, 192, 3},
+        {88, 200, 3},
+        {112, 200, 3},
     }};
 // }}}1
 
@@ -131,6 +203,42 @@ inline std::vector<std::unique_ptr<BrickWall>> initBrickWalls() {
       objects.emplace_back(
           std::make_unique<BrickWall>(brickWallsArray[g_stage][i][0] + 12,
                                       brickWallsArray[g_stage][i][1] + 12, 0));
+    case 2:
+      objects.emplace_back(std::make_unique<BrickWall>(
+          brickWallsArray[g_stage][i][0], brickWallsArray[g_stage][i][1], 0));
+      objects.emplace_back(
+          std::make_unique<BrickWall>(brickWallsArray[g_stage][i][0] + 4,
+                                      brickWallsArray[g_stage][i][1], 1));
+      objects.emplace_back(
+          std::make_unique<BrickWall>(brickWallsArray[g_stage][i][0] + 8,
+                                      brickWallsArray[g_stage][i][1], 0));
+      objects.emplace_back(
+          std::make_unique<BrickWall>(brickWallsArray[g_stage][i][0] + 12,
+                                      brickWallsArray[g_stage][i][1], 1));
+      objects.emplace_back(
+          std::make_unique<BrickWall>(brickWallsArray[g_stage][i][0],
+                                      brickWallsArray[g_stage][i][1] + 4, 1));
+      objects.emplace_back(
+          std::make_unique<BrickWall>(brickWallsArray[g_stage][i][0] + 4,
+                                      brickWallsArray[g_stage][i][1] + 4, 0));
+      objects.emplace_back(
+          std::make_unique<BrickWall>(brickWallsArray[g_stage][i][0] + 8,
+                                      brickWallsArray[g_stage][i][1] + 4, 1));
+      objects.emplace_back(
+          std::make_unique<BrickWall>(brickWallsArray[g_stage][i][0] + 12,
+                                      brickWallsArray[g_stage][i][1] + 4, 0));
+    case 3:
+      objects.emplace_back(std::make_unique<BrickWall>(
+          brickWallsArray[g_stage][i][0], brickWallsArray[g_stage][i][1], 0));
+      objects.emplace_back(
+          std::make_unique<BrickWall>(brickWallsArray[g_stage][i][0] + 4,
+                                      brickWallsArray[g_stage][i][1], 1));
+      objects.emplace_back(
+          std::make_unique<BrickWall>(brickWallsArray[g_stage][i][0],
+                                      brickWallsArray[g_stage][i][1] + 4, 1));
+      objects.emplace_back(
+          std::make_unique<BrickWall>(brickWallsArray[g_stage][i][0] + 4,
+                                      brickWallsArray[g_stage][i][1] + 4, 0));
     }
   }
   return objects;
