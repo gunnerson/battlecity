@@ -72,7 +72,7 @@ int main() {
       userTank->getTexture(TankTextures)};
   sf::Sprite userTankSprite(*usertankTexture);
 
-  // Brick walls
+  // Walls
   std::vector<std::shared_ptr<sf::Texture>> WallTextures{
       initWallTextures(Sprites)};
   std::vector<std::unique_ptr<Wall>> Walls{initWalls()};
