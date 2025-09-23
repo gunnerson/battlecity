@@ -29,20 +29,20 @@ public:
     return false;
   }
 
-  sf::Texture
-  getTexture(const std::vector<std::unique_ptr<sf::Texture>> &Textures) const {
-    return *Textures[m_anim * 15 / g_updateRate];
+  std::shared_ptr<sf::Texture>
+  getTexture(const std::vector<std::shared_ptr<sf::Texture>> &Textures) const {
+    return Textures[m_anim * 15 / g_updateRate];
   };
 };
 
-inline std::vector<std::unique_ptr<sf::Texture>>
+inline std::vector<std::shared_ptr<sf::Texture>>
 initHitTextures(const sf::Image &Sprites) {
-  std::vector<std::unique_ptr<sf::Texture>> objects{};
-  objects.emplace_back(std::make_unique<sf::Texture>(
+  std::vector<std::shared_ptr<sf::Texture>> objects{};
+  objects.emplace_back(std::make_shared<sf::Texture>(
       Sprites, false, sf::IntRect({256, 128}, {16, 16})));
-  objects.emplace_back(std::make_unique<sf::Texture>(
+  objects.emplace_back(std::make_shared<sf::Texture>(
       Sprites, false, sf::IntRect({272, 128}, {16, 16})));
-  objects.emplace_back(std::make_unique<sf::Texture>(
+  objects.emplace_back(std::make_shared<sf::Texture>(
       Sprites, false, sf::IntRect({288, 128}, {16, 16})));
   return objects;
 };

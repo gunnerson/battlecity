@@ -1,5 +1,6 @@
 //
 // imports {{{1
+#include "Base.h"
 #include "Hit.h"
 #include "Projectile.h"
 #include "Tank.h"
@@ -7,6 +8,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
+#include <memory>
 
 // globals {{{1
 constexpr int g_maxX{208};
@@ -63,29 +65,37 @@ int main() {
 
   const sf::Image Sprites("res/sprites.png");
 
+  // Base
+  const auto base{std::make_unique<Base>()};
+  const std::vector<std::shared_ptr<sf::Texture>> BaseTextures{
+      initBaseTextures(Sprites)};
+  auto baseTexture{base->getTexture(BaseTextures)};
+  auto baseSprite{sf::Sprite(*baseTexture)};
+
   // User tank
-  std::vector<std::shared_ptr<sf::Texture>> TankTextures{
+  const std::vector<std::shared_ptr<sf::Texture>> TankTextures{
       initTankTextures(Sprites)};
-  auto userTank{std::make_unique<Tank>(0, 1, 0, 0, 64, 195, TankTextures)};
-  auto userTank_ptr{userTank.get()};
+  const auto userTank{
+      std::make_unique<Tank>(0, 1, 0, 0, 64, 195, TankTextures)};
+  const auto userTank_ptr{userTank.get()};
   std::shared_ptr<sf::Texture> usertankTexture{
       userTank->getTexture(TankTextures)};
   sf::Sprite userTankSprite(*usertankTexture);
 
   // Walls
-  std::vector<std::shared_ptr<sf::Texture>> WallTextures{
+  const std::vector<std::shared_ptr<sf::Texture>> WallTextures{
       initWallTextures(Sprites)};
   std::vector<std::unique_ptr<Wall>> Walls{initWalls()};
   std::shared_ptr<sf::Texture> wallTexture{Walls[0]->getTexture(WallTextures)};
   sf::Sprite wallSprite(*wallTexture);
 
   // Projectiles
-  std::vector<std::unique_ptr<sf::Texture>> ProjectileTextures{
+  const std::vector<std::shared_ptr<sf::Texture>> ProjectileTextures{
       initProjectileTextures(Sprites)};
   std::vector<std::unique_ptr<Projectile>> Projectiles{};
 
   // Hits
-  std::vector<std::unique_ptr<sf::Texture>> HitTextures{
+  const std::vector<std::shared_ptr<sf::Texture>> HitTextures{
       initHitTextures(Sprites)};
   std::vector<std::unique_ptr<Hit>> Hits{};
 
@@ -125,11 +135,18 @@ int main() {
     window.handleEvents(onClose, onKeyPressed, onKeyReleased);
     window.clear();
 
+    // Draw base
+    baseTexture = base->getTexture(BaseTextures);
+    baseSprite.setTexture(*baseTexture);
+    baseSprite.setPosition(
+        {static_cast<float>(base->getX()), static_cast<float>(base->getY())});
+    window.draw(baseSprite);
+
     // Draw projectiles
     for (std::size_t i{0}; i < Projectiles.size(); ++i) {
       Projectiles[i]->move();
       auto texture{Projectiles[i]->getTexture(ProjectileTextures)};
-      sf::Sprite sprite(texture);
+      sf::Sprite sprite(*texture);
       sprite.setPosition({static_cast<float>(Projectiles[i]->getX()),
                           static_cast<float>(Projectiles[i]->getY())});
       window.draw(sprite);
@@ -171,7 +188,7 @@ int main() {
     for (std::size_t i{0}; i < Hits.size(); ++i) {
       if (Hits[i]->is_alive()) {
         auto hitTexture{Hits[i]->getTexture(HitTextures)};
-        auto hitSprite{sf::Sprite(hitTexture)};
+        auto hitSprite{sf::Sprite(*hitTexture)};
         hitSprite.setPosition({static_cast<float>(Hits[i]->getX()),
                                static_cast<float>(Hits[i]->getY())});
         window.draw(hitSprite);
@@ -201,6 +218,8 @@ int main() {
         Walls.erase(Walls.begin() + i);
       }
     }
+
+    // Draw Base
 
     window.display();
   }

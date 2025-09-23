@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/Graphics/Texture.hpp>
+#include <memory>
 #include <vector>
 
 extern const int g_updateRate;
@@ -50,9 +51,9 @@ public:
     return false;
   }
 
-  sf::Texture
-  getTexture(const std::vector<std::unique_ptr<sf::Texture>> &Textures) const {
-    return *Textures[m_dir];
+  std::shared_ptr<sf::Texture>
+  getTexture(const std::vector<std::shared_ptr<sf::Texture>> &Textures) const {
+    return Textures[m_dir];
   };
 
   std::tuple<int, int, int> getHitPos() const {
@@ -80,16 +81,16 @@ public:
   }
 };
 
-inline std::vector<std::unique_ptr<sf::Texture>>
+inline std::vector<std::shared_ptr<sf::Texture>>
 initProjectileTextures(const sf::Image &Sprites) {
-  std::vector<std::unique_ptr<sf::Texture>> objects{};
-  objects.emplace_back(std::make_unique<sf::Texture>(
+  std::vector<std::shared_ptr<sf::Texture>> objects{};
+  objects.emplace_back(std::make_shared<sf::Texture>(
       Sprites, false, sf::IntRect({323, 102}, {3, 4})));
-  objects.emplace_back(std::make_unique<sf::Texture>(
+  objects.emplace_back(std::make_shared<sf::Texture>(
       Sprites, false, sf::IntRect({330, 102}, {4, 3})));
-  objects.emplace_back(std::make_unique<sf::Texture>(
+  objects.emplace_back(std::make_shared<sf::Texture>(
       Sprites, false, sf::IntRect({339, 102}, {3, 4})));
-  objects.emplace_back(std::make_unique<sf::Texture>(
+  objects.emplace_back(std::make_shared<sf::Texture>(
       Sprites, false, sf::IntRect({346, 102}, {4, 3})));
   return objects;
 };
