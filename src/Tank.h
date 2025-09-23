@@ -1,5 +1,5 @@
 #pragma once
-#include "BrickWall.h"
+#include "Wall.h"
 #include <SFML/Graphics/Texture.hpp>
 #include <vector>
 
@@ -57,7 +57,7 @@ public:
     return m_anim % 2 ? Textures[idx] : Textures[++idx];
   };
 
-  void updatePos(const std::vector<std::unique_ptr<BrickWall>> &BrickWalls) {
+  void updatePos(const std::vector<std::unique_ptr<Wall>> &Walls) {
     if (g_up)
       m_dir = 0;
     else if (g_left)
@@ -70,7 +70,7 @@ public:
     bool collisionDetected = false;
     // Going UP
     if (m_dir == 0 and m_y != 0) {
-      for (const auto &obj : BrickWalls) {
+      for (const auto &obj : Walls) {
         if (obj->is_alive()) {
           int x{obj->getX()};
           int y{obj->getY()};
@@ -87,7 +87,7 @@ public:
 
       // Going Left
     } else if (m_dir == 1 and m_x != 0) {
-      for (const auto &obj : BrickWalls) {
+      for (const auto &obj : Walls) {
         if (obj->is_alive()) {
           int x{obj->getX()};
           int y{obj->getY()};
@@ -104,7 +104,7 @@ public:
 
       // Going Down
     } else if (m_dir == 2 and m_y != g_maxY - m_dy) {
-      for (const auto &obj : BrickWalls) {
+      for (const auto &obj : Walls) {
         if (obj->is_alive()) {
           int x{obj->getX()};
           int y{obj->getY()};
@@ -121,7 +121,7 @@ public:
 
       // Going Right
     } else if (m_dir == 3 and m_x != g_maxX - m_dx) {
-      for (const auto &obj : BrickWalls) {
+      for (const auto &obj : Walls) {
         if (obj->is_alive()) {
           int x{obj->getX()};
           int y{obj->getY()};

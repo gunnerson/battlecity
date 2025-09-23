@@ -1,9 +1,9 @@
 //
 // imports {{{1
-#include "BrickWall.h"
 #include "Hit.h"
 #include "Projectile.h"
 #include "Tank.h"
+#include "Wall.h"
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
@@ -73,12 +73,11 @@ int main() {
   sf::Sprite userTankSprite(*usertankTexture);
 
   // Brick walls
-  std::vector<std::shared_ptr<sf::Texture>> BrickWallTextures{
-      initBrickWallTextures(Sprites)};
-  std::vector<std::unique_ptr<BrickWall>> BrickWalls{initBrickWalls()};
-  std::shared_ptr<sf::Texture> brickWallTexture{
-      BrickWalls[0]->getTexture(BrickWallTextures)};
-  sf::Sprite brickWallSprite(*brickWallTexture);
+  std::vector<std::shared_ptr<sf::Texture>> WallTextures{
+      initWallTextures(Sprites)};
+  std::vector<std::unique_ptr<Wall>> Walls{initWalls()};
+  std::shared_ptr<sf::Texture> wallTexture{Walls[0]->getTexture(WallTextures)};
+  sf::Sprite wallSprite(*wallTexture);
 
   // Projectiles
   std::vector<std::unique_ptr<sf::Texture>> ProjectileTextures{
@@ -134,10 +133,9 @@ int main() {
       sprite.setPosition({static_cast<float>(Projectiles[i]->getX()),
                           static_cast<float>(Projectiles[i]->getY())});
       window.draw(sprite);
-      for (const auto &brickWall : BrickWalls) {
-        if (brickWall->is_alive()) {
-          if (Projectiles[i]->checkCollision(brickWall->getX(),
-                                             brickWall->getY())) {
+      for (const auto &wall : Walls) {
+        if (wall->is_alive()) {
+          if (Projectiles[i]->checkCollision(wall->getX(), wall->getY())) {
             auto [x, y, dir]{Projectiles[i]->getHitPos()};
             Hits.emplace_back(std::make_unique<Hit>(x, y, dir));
             Projectiles.erase(Projectiles.begin() + i);
@@ -149,7 +147,7 @@ int main() {
 
     // Draw user tank
     if (g_up || g_left || g_down || g_right) {
-      userTank->updatePos(BrickWalls);
+      userTank->updatePos(Walls);
     }
     userTank->reload();
     usertankTexture = userTank->getTexture(TankTextures);
@@ -159,13 +157,13 @@ int main() {
     window.draw(userTankSprite);
 
     // Draw brick walls
-    for (const auto &brickWall : BrickWalls) {
-      if (brickWall->is_alive()) {
-        brickWallTexture = brickWall->getTexture(BrickWallTextures);
-        brickWallSprite.setTexture(*brickWallTexture);
-        brickWallSprite.setPosition({static_cast<float>(brickWall->getX()),
-                                     static_cast<float>(brickWall->getY())});
-        window.draw(brickWallSprite);
+    for (const auto &wall : Walls) {
+      if (wall->is_alive()) {
+        wallTexture = wall->getTexture(WallTextures);
+        wallSprite.setTexture(*wallTexture);
+        wallSprite.setPosition({static_cast<float>(wall->getX()),
+                                static_cast<float>(wall->getY())});
+        window.draw(wallSprite);
       }
     }
 
@@ -179,9 +177,9 @@ int main() {
         window.draw(hitSprite);
         Hits[i]->anim();
         if (Hits[i]->getAnim() == 1) {
-          for (const auto &brickWall : BrickWalls) {
-            if (Hits[i]->checkBlast(brickWall->getX(), brickWall->getY())) {
-              brickWall->kill();
+          for (const auto &wall : Walls) {
+            if (Hits[i]->checkBlast(wall->getX(), wall->getY())) {
+              wall->kill();
             }
           }
         }
@@ -198,9 +196,9 @@ int main() {
     }
 
     // Clean brick walls
-    for (std::size_t i{0}; i < BrickWalls.size(); ++i) {
-      if (!BrickWalls[i]->is_alive()) {
-        BrickWalls.erase(BrickWalls.begin() + i);
+    for (std::size_t i{0}; i < Walls.size(); ++i) {
+      if (!Walls[i]->is_alive()) {
+        Walls.erase(Walls.begin() + i);
       }
     }
 
