@@ -41,10 +41,10 @@ void handleRightKeyPressed(Tank *tank) {
   g_right = true;
   g_up = g_left = g_down = false;
 }
-void handleUpKeyReleased(Tank *tank) { g_up = false; }
-void handleLeftKeyReleased(Tank *tank) { g_left = false; }
-void handleDownKeyReleased(Tank *tank) { g_down = false; }
-void handleRightKeyReleased(Tank *tank) { g_right = false; }
+void handleUpKeyReleased() { g_up = false; }
+void handleLeftKeyReleased() { g_left = false; }
+void handleDownKeyReleased() { g_down = false; }
+void handleRightKeyReleased() { g_right = false; }
 void handleSpaceKeyPressed(
     Tank *tank, std::vector<std::unique_ptr<Projectile>> &Projectiles) {
   if (!tank->is_reloading()) {
@@ -119,15 +119,15 @@ int main() {
   }};
 
   const auto onKeyReleased{
-      [&window, &userTank_ptr](const sf::Event::KeyReleased &keyReleased) {
+      [&window](const sf::Event::KeyReleased &keyReleased) {
         if (keyReleased.scancode == sf::Keyboard::Scancode::Up)
-          handleUpKeyReleased(userTank_ptr);
+          handleUpKeyReleased();
         else if (keyReleased.scancode == sf::Keyboard::Scancode::Left)
-          handleLeftKeyReleased(userTank_ptr);
+          handleLeftKeyReleased();
         else if (keyReleased.scancode == sf::Keyboard::Scancode::Down)
-          handleDownKeyReleased(userTank_ptr);
+          handleDownKeyReleased();
         else if (keyReleased.scancode == sf::Keyboard::Scancode::Right)
-          handleRightKeyReleased(userTank_ptr);
+          handleRightKeyReleased();
       }};
 
   // Main cycle
