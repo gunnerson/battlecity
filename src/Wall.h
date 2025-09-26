@@ -7,7 +7,9 @@
 extern int g_stage;
 
 // Map {{{1
-// {Pos X, Pos Y, Texture N}
+//
+// Textures:
+//
 // 0:   0101
 //      1010
 //      0101
@@ -36,6 +38,9 @@ extern int g_stage;
 //
 // 7:   2323
 //      4545
+//
+//
+// {Pos X, Pos Y, Texture N}
 const std::vector<std::vector<std::vector<int>>> wallsArray = {
     // Stage 01
     {

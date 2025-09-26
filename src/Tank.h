@@ -11,11 +11,19 @@ extern bool g_left;
 extern bool g_down;
 extern bool g_right;
 
+const std::vector<std::vector<int>> NPCsArray = {
+    // Stage 01
+    {}
+
+};
+
 class Tank {
 private:
-  int m_type{};
+  int m_type{}; // 0,1,2,3 - Player,
+                // 4 - Basic, 5 - Fast, 6 - Power, 7 - Armor
   int m_speed{};
   int m_color{};   // 0 - yellow, 1 - white, 2 - green, 3 - purple
+  int m_health{};  // Hits left
   int m_dir{};     // 0 - up, 1 - left, 2 - down, 3 - right
   int m_x{};       // X offset from top left corner
   int m_y{};       // Y offset from top left corner
@@ -25,14 +33,33 @@ private:
   int m_reload{0}; // Reloading
 
 public:
-  Tank(int type, int speed, int color, int dir, int x, int y,
+  Tank(int type, int dir, int x, int y,
        const std::vector<std::shared_ptr<sf::Texture>> &Textures)
-      : m_type{type}, m_speed{speed}, m_color{color}, m_dir{dir}, m_x{x},
-        m_y{y} {
+      : m_type{type}, m_dir{dir}, m_x{x}, m_y{y} {
     auto texture{*getTexture(Textures)};
     auto textureSize{texture.getSize()};
     m_dx = textureSize.x;
     m_dy = textureSize.y;
+    m_health = 1;
+    switch (m_type) {
+    case 0:
+      m_speed = 1;
+      m_color = 0;
+      break;
+    case 4:
+      m_speed = 1;
+      m_color = 1;
+      break;
+    case 5:
+      m_speed = 3;
+      m_color = 1;
+      break;
+    case 6:
+    case 7:
+      m_speed = 2;
+      m_color = 1;
+      break;
+    }
   }
 
   int getDir() const { return m_dir; }
@@ -138,18 +165,45 @@ public:
     }
   }
 
-  std::tuple<int, int, int> getProjectilePos() const {
+  std::tuple<int, int, int, int> getProjectile() const {
+    int speed{};
+    switch (m_type) {
+    case 0:
+      speed = 3;
+      break;
+    case 1:
+    case 2:
+    case 3:
+      speed = 4;
+      break;
+    case 4:
+      speed = 3;
+      break;
+    case 5:
+      speed = 4;
+      break;
+    case 6:
+      speed = 5;
+      break;
+    case 7:
+      speed = 4;
+      break;
+    default:
+      speed = 2;
+      break;
+    }
+
     switch (m_dir) {
     case 0:
-      return {m_x + m_dx / 2 - 1, m_y, m_dir};
+      return {m_x + m_dx / 2 - 1, m_y, m_dir, speed};
     case 1:
-      return {m_x, m_y + m_dy / 2 - 1, m_dir};
+      return {m_x, m_y + m_dy / 2 - 1, m_dir, speed};
     case 2:
-      return {m_x + m_dx / 2 - 1, m_y + m_dy - 4, m_dir};
+      return {m_x + m_dx / 2 - 1, m_y + m_dy - 4, m_dir, speed};
     case 3:
-      return {m_x + m_dx - 4, m_y + m_dy / 2 - 1, m_dir};
+      return {m_x + m_dx - 4, m_y + m_dy / 2 - 1, m_dir, speed};
     }
-    return {0, 0, 0};
+    return {0, 0, 0, 0};
   }
 };
 

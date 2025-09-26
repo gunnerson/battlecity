@@ -59,8 +59,8 @@ void handleRightKeyReleased() { g_right = false; }
 void handleSpaceKeyPressed(
     Tank *tank, std::vector<std::unique_ptr<Projectile>> &Projectiles) {
   if (!g_gameOver && !tank->is_reloading()) {
-    auto [x, y, dir] = tank->getProjectilePos();
-    Projectiles.emplace_back(std::make_unique<Projectile>(x, y, dir));
+    auto [x, y, dir, speed] = tank->getProjectile();
+    Projectiles.emplace_back(std::make_unique<Projectile>(x, y, dir, speed));
     tank->startReload();
   }
 }
@@ -91,12 +91,15 @@ int main() {
   // User tank
   const std::vector<std::shared_ptr<sf::Texture>> TankTextures{
       initTankTextures(Sprites)};
-  const auto userTank{
-      std::make_unique<Tank>(0, 1, 0, 0, 64, 195, TankTextures)};
+  const auto userTank{std::make_unique<Tank>(0, 1, 64, 195, TankTextures)};
   const auto userTank_ptr{userTank.get()};
   std::shared_ptr<sf::Texture> usertankTexture{
       userTank->getTexture(TankTextures)};
   sf::Sprite userTankSprite(*usertankTexture);
+
+  // Enemy tanks
+  std::vector<std::unique_ptr<Tank>> NPCs{};
+  int timeToNextSpawn{-30 * g_updateRate - 1};
 
   // Walls
   const std::vector<std::shared_ptr<sf::Texture>> WallTextures{
@@ -256,6 +259,11 @@ int main() {
         Bangs.erase(Bangs.begin() + i);
       }
     }
+
+    // Spawn NPCs
+    // if (timeToNextSpawn <= 0) {
+    //   NPCs.emplace_back(std::make_unique<Tank>());
+    // }
 
     // Clean projectiles
     for (std::size_t i{0}; i < Projectiles.size(); ++i) {

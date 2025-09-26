@@ -12,11 +12,12 @@ private:
   int m_x{};
   int m_y{};
   int m_dir{}; // 0 - up, 1 - left, 2 - down, 3 - right
-  int m_speed{3};
+  int m_speed{};
   bool m_out{false};
 
 public:
-  Projectile(int x, int y, int dir) : m_x{x}, m_y{y}, m_dir{dir} {}
+  Projectile(int x, int y, int dir, int speed)
+      : m_x{x}, m_y{y}, m_dir{dir}, m_speed{speed} {}
 
   int getX() const { return m_x; }
   int getY() const { return m_y; }

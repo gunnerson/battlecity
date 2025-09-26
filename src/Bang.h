@@ -17,7 +17,7 @@ public:
   int getY() const { return m_y; }
   int getAnim() const { return m_anim; }
 
-  bool is_alive() const { return m_anim < g_updateRate * 2 / 5 - 1; }
+  bool is_alive() const { return m_anim < g_updateRate * 3 / 5 - 1; }
   void anim() { ++m_anim; }
 
   std::shared_ptr<sf::Texture>
@@ -33,5 +33,7 @@ initBangTextures(const sf::Image &Sprites) {
       Sprites, false, sf::IntRect({304, 128}, {32, 32})));
   objects.emplace_back(std::make_shared<sf::Texture>(
       Sprites, false, sf::IntRect({336, 128}, {32, 32})));
+  objects.emplace_back(std::make_shared<sf::Texture>(
+      Sprites, false, sf::IntRect({304, 128}, {32, 32})));
   return objects;
 };
