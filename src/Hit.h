@@ -8,11 +8,10 @@ class Hit {
 private:
   int m_x{};
   int m_y{};
-  int m_dir{};
   int m_anim{0};
 
 public:
-  Hit(int x, int y, int dir) : m_x{x}, m_y{y}, m_dir{dir} {}
+  Hit(int x, int y) : m_x{x}, m_y{y} {}
 
   int getX() const { return m_x; }
   int getY() const { return m_y; }

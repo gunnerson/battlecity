@@ -2,6 +2,7 @@
 // imports {{{1
 #include "Bang.h"
 #include "Base.h"
+#include "Enums.h"
 #include "GameOver.h"
 #include "Hit.h"
 #include "Projectile.h"
@@ -26,28 +27,28 @@ bool g_right{false};
 // events {{{1
 void handleUpKeyPressed(Tank *tank) {
   if (!g_gameOver) {
-    tank->setDir(0);
+    tank->setDir(up);
     g_up = true;
     g_left = g_right = g_down = false;
   }
 }
 void handleLeftKeyPressed(Tank *tank) {
   if (!g_gameOver) {
-    tank->setDir(1);
+    tank->setDir(left);
     g_left = true;
     g_up = g_right = g_down = false;
   }
 }
 void handleDownKeyPressed(Tank *tank) {
   if (!g_gameOver) {
-    tank->setDir(2);
+    tank->setDir(down);
     g_down = true;
     g_up = g_left = g_right = false;
   }
 }
 void handleRightKeyPressed(Tank *tank) {
   if (!g_gameOver) {
-    tank->setDir(3);
+    tank->setDir(right);
     g_right = true;
     g_up = g_left = g_down = false;
   }
@@ -92,7 +93,7 @@ int main() {
   // User tank
   const std::vector<std::shared_ptr<sf::Texture>> TankTextures{
       initTankTextures(Sprites)};
-  const auto userTank{std::make_unique<Tank>(0, 64, 195, TankTextures)};
+  const auto userTank{std::make_unique<Tank>(sergeant, 64, 195, TankTextures)};
   const auto userTank_ptr{userTank.get()};
   std::shared_ptr<sf::Texture> usertankTexture{
       userTank->getTexture(TankTextures)};
@@ -187,8 +188,8 @@ int main() {
         for (const auto &wall : Walls) {
           if (wall->is_alive()) {
             if (Projectiles[i]->checkCollision(wall->getX(), wall->getY())) {
-              auto [x, y, dir]{Projectiles[i]->getHitPos()};
-              Hits.emplace_back(std::make_unique<Hit>(x, y, dir));
+              auto [x, y]{Projectiles[i]->getHitPos()};
+              Hits.emplace_back(std::make_unique<Hit>(x, y));
               Projectiles[i]->addShot();
               Projectiles.erase(Projectiles.begin() + i);
               break;
@@ -204,7 +205,7 @@ int main() {
     }
     userTank->reload();
     usertankTexture = userTank->getTexture(TankTextures);
-    userTankSprite.setTexture(*usertankTexture);
+    sf::Sprite userTankSprite{*usertankTexture};
     userTankSprite.setPosition({static_cast<float>(userTank->getX()),
                                 static_cast<float>(userTank->getY())});
     window.draw(userTankSprite);

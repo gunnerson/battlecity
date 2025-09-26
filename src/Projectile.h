@@ -1,4 +1,5 @@
 #pragma once
+#include "Enums.h"
 #include "Tank.h"
 #include <SFML/Graphics/Texture.hpp>
 #include <memory>
@@ -12,13 +13,13 @@ class Projectile {
 private:
   int m_x{};
   int m_y{};
-  int m_dir{}; // 0 - up, 1 - left, 2 - down, 3 - right
+  Dir m_dir{}; // 0 - up, 1 - left, 2 - down, 3 - right
   int m_speed{};
   bool m_out{false};
   Tank *m_tank{};
 
 public:
-  Projectile(int x, int y, int dir, int speed, Tank *tank)
+  Projectile(int x, int y, Dir dir, int speed, Tank *tank)
       : m_x{x}, m_y{y}, m_dir{dir}, m_speed{speed}, m_tank{tank} {}
 
   int getX() const { return m_x; }
@@ -28,16 +29,16 @@ public:
 
   void move() {
     switch (m_dir) {
-    case 0:
+    case up:
       m_y -= m_speed;
       break;
-    case 1:
+    case left:
       m_x -= m_speed;
       break;
-    case 2:
+    case down:
       m_y += m_speed;
       break;
-    case 3:
+    case right:
       m_x += m_speed;
       break;
     }
@@ -46,9 +47,9 @@ public:
   }
 
   bool checkBaseHit() {
-    if ((m_dir == 1 and m_x <= 111 and m_x >= 96 and m_y >= 190) ||
-        (m_dir == 2 and m_x >= 94 and m_x <= 111 and m_y >= 189) ||
-        (m_dir == 3 and m_x >= 93 and m_x <= 108 and m_y >= 190))
+    if ((m_dir == left and m_x <= 111 and m_x >= 96 and m_y >= 190) ||
+        (m_dir == down and m_x >= 94 and m_x <= 111 and m_y >= 189) ||
+        (m_dir == right and m_x >= 93 and m_x <= 108 and m_y >= 190))
       return true;
     return false;
   }
@@ -68,28 +69,28 @@ public:
     return Textures[m_dir];
   };
 
-  std::tuple<int, int, int> getHitPos() const {
+  std::tuple<int, int> getHitPos() const {
     int x0{};
     int y0{};
     switch (m_dir) {
-    case 0:
+    case up:
       x0 = (m_x + 1) / 8 * 8;
       y0 = m_y / 4 * 4;
-      return {(m_x - x0 > 3) ? x0 : x0 - 8, y0, m_dir};
-    case 1:
+      return {(m_x - x0 > 3) ? x0 : x0 - 8, y0};
+    case left:
       x0 = m_x / 4 * 4;
       y0 = (m_y + 1) / 8 * 8;
-      return {x0, (m_y - y0 > 3) ? y0 : y0 - 8, m_dir};
-    case 2:
+      return {x0, (m_y - y0 > 3) ? y0 : y0 - 8};
+    case down:
       x0 = (m_x + 1) / 8 * 8;
       y0 = (m_y + 3) / 4 * 4 - 12;
-      return {(m_x - x0 > 3) ? x0 : x0 - 8, y0, m_dir};
-    case 3:
+      return {(m_x - x0 > 3) ? x0 : x0 - 8, y0};
+    case right:
       x0 = (m_x + 3) / 4 * 4 - 12;
       y0 = (m_y + 1) / 8 * 8;
-      return {x0, (m_y - y0 > 3) ? y0 : y0 - 8, m_dir};
+      return {x0, (m_y - y0 > 3) ? y0 : y0 - 8};
     }
-    return {0, 0, 0};
+    return {0, 0};
   }
 };
 

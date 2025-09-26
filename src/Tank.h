@@ -1,6 +1,8 @@
 #pragma once
+#include "Enums.h"
 #include "Wall.h"
 #include <SFML/Graphics/Texture.hpp>
+#include <cstdlib>
 #include <vector>
 
 extern const int g_maxX;
@@ -19,58 +21,64 @@ const std::vector<std::vector<int>> NPCsArray = {
 
 class Tank {
 private:
-  int m_type{}; // 0,1,2,3 - Player,
-                // 4 - Basic, 5 - Fast, 6 - Power, 7 - Armor
+  TankType m_type{}; // 0,1,2,3 - Player,
+                     // 4 - Basic, 5 - Fast, 6 - Power, 7 - Armor
   int m_speed{};
-  int m_color{};   // 0 - yellow, 1 - white, 2 - green, 3 - purple
+  Color m_color{}; // 0 - yellow, 1 - gray, 2 - green, 3 - purple
   int m_health{};  // Hits left
-  int m_dir{};     // 0 - up, 1 - left, 2 - down, 3 - right
+  Dir m_dir{};     // 0 - up, 1 - left, 2 - down, 3 - right
   int m_x{};       // X offset from top left corner
   int m_y{};       // Y offset from top left corner
-  int m_dx{};      // Texture width
-  int m_dy{};      // Texture height
+  int m_length{};  // Texture length
+  int m_width{};   // Texture width
   int m_anim{0};   // Movement animation counter
   int m_reload{0}; // Reloading
   int m_shots{1};
 
 public:
-  Tank(int type, int x, int y,
+  Tank(TankType type, int x, int y,
        const std::vector<std::shared_ptr<sf::Texture>> &Textures)
       : m_type{type}, m_x{x}, m_y{y} {
-    auto texture{*getTexture(Textures)};
-    auto textureSize{texture.getSize()};
-    m_dx = textureSize.x;
-    m_dy = textureSize.y;
     m_health = 1;
     switch (m_type) {
-    case 0:
-    case 1:
-    case 2:
-    case 3:
+    case player:
       m_speed = 1;
-      m_color = 0;
-      m_dir = 0;
-      break;
-    case 4:
+      m_width = 13;
+      m_length = 13;
+      m_color = yellow;
+      m_dir = up;
+    case sergeant:
       m_speed = 1;
-      m_color = 1;
-      m_dir = 2;
+      m_width = 13;
+      m_length = 16;
+      m_color = yellow;
+      m_dir = up;
+    case colonel:
+    case general:
+      m_speed = 1;
+      m_color = yellow;
+      m_dir = up;
       break;
-    case 5:
+    case basic:
+      m_speed = 1;
+      m_color = gray;
+      m_dir = down;
+      break;
+    case fast:
       m_speed = 3;
-      m_color = 1;
-      m_dir = 2;
+      m_color = gray;
+      m_dir = down;
       m_shots = 2;
       break;
-    case 6:
+    case power:
       m_speed = 2;
-      m_color = 1;
-      m_dir = 2;
+      m_color = gray;
+      m_dir = down;
       break;
-    case 7:
+    case armor:
       m_speed = 2;
-      m_color = 2;
-      m_dir = 2;
+      m_color = green;
+      m_dir = down;
       m_health = 4;
       break;
     }
@@ -81,9 +89,27 @@ public:
   int getY() const { return m_y; }
   void setY(int y) { m_y = y; }
   int getType() const { return m_type; }
-  void setType(int type) { m_type = type; }
+  void setType(TankType type) { m_type = type; }
   int getDir() const { return m_dir; }
-  void setDir(int dir) { m_dir = dir; }
+  void setDir(Dir dir) {
+    if (std::abs(m_dir - dir) % 2) {
+      switch (dir) {
+      case up:
+        m_y += m_length - m_width;
+        break;
+      case left:
+        m_x += m_length - m_width;
+        break;
+      case down:
+        m_y -= m_length - m_width;
+        break;
+      case right:
+        m_x -= m_length - m_width;
+        break;
+      }
+    }
+    m_dir = dir;
+  }
 
   bool is_alive() const { return m_health > 0; }
 
@@ -104,7 +130,7 @@ public:
     else
       --m_health;
     if (m_type == 7 and m_health <= 1)
-      m_color = 1;
+      m_color = gray;
   }
 
   std::shared_ptr<sf::Texture>
@@ -115,22 +141,21 @@ public:
 
   void updatePos(const std::vector<std::unique_ptr<Wall>> &Walls) {
     if (g_up)
-      m_dir = 0;
+      m_dir = up;
     else if (g_left)
-      m_dir = 1;
+      m_dir = left;
     else if (g_down)
-      m_dir = 2;
+      m_dir = down;
     else if (g_right)
-      m_dir = 3;
+      m_dir = right;
 
     bool collisionDetected = false;
-    // Going UP
-    if (m_dir == 0 and m_y != 0) {
+    if (m_dir == up and m_y != 0) {
       for (const auto &obj : Walls) {
         if (obj->is_alive()) {
           int x{obj->getX()};
           int y{obj->getY()};
-          if ((x + 4 > m_x) && (x < m_x + m_dx) && (y + 4 == m_y)) {
+          if ((x + 4 > m_x) && (x < m_x + m_width) && (y + 4 == m_y)) {
             collisionDetected = true;
             break;
           }
@@ -141,13 +166,12 @@ public:
         ++m_anim;
       }
 
-      // Going Left
-    } else if (m_dir == 1 and m_x != 0) {
+    } else if (m_dir == left and m_x != 0) {
       for (const auto &obj : Walls) {
         if (obj->is_alive()) {
           int x{obj->getX()};
           int y{obj->getY()};
-          if ((y + 4 > m_y) && (y < m_y + m_dy) && (x + 4 == m_x)) {
+          if ((y + 4 > m_y) && (y < m_y + m_width) && (x + 4 == m_x)) {
             collisionDetected = true;
             break;
           }
@@ -158,13 +182,12 @@ public:
         ++m_anim;
       }
 
-      // Going Down
-    } else if (m_dir == 2 and m_y != g_maxY - m_dy) {
+    } else if (m_dir == down and m_y != g_maxY - m_length) {
       for (const auto &obj : Walls) {
         if (obj->is_alive()) {
           int x{obj->getX()};
           int y{obj->getY()};
-          if ((x + 4 > m_x) && (x < m_x + m_dx) && (y == m_y + m_dy)) {
+          if ((x + 4 > m_x) && (x < m_x + m_width) && (y == m_y + m_length)) {
             collisionDetected = true;
             break;
           }
@@ -175,13 +198,12 @@ public:
         ++m_anim;
       }
 
-      // Going Right
-    } else if (m_dir == 3 and m_x != g_maxX - m_dx) {
+    } else if (m_dir == right and m_x != g_maxX - m_length) {
       for (const auto &obj : Walls) {
         if (obj->is_alive()) {
           int x{obj->getX()};
           int y{obj->getY()};
-          if ((y + 4 > m_y) && (y < m_y + m_dy) && (x == m_x + m_dx)) {
+          if ((y + 4 > m_y) && (y < m_y + m_width) && (x == m_x + m_length)) {
             collisionDetected = true;
             break;
           }
@@ -194,42 +216,42 @@ public:
     }
   }
 
-  std::tuple<int, int, int, int> getProjectile() const {
+  std::tuple<int, int, Dir, int> getProjectile() const {
     int speed{};
     switch (m_type) {
-    case 0:
+    case player:
       speed = 3;
       break;
-    case 1:
-    case 2:
-    case 3:
+    case sergeant:
+    case colonel:
+    case general:
       speed = 4;
       break;
-    case 4:
+    case basic:
       speed = 3;
       break;
-    case 5:
+    case fast:
       speed = 4;
       break;
-    case 6:
+    case power:
       speed = 5;
       break;
-    case 7:
+    case armor:
       speed = 4;
       break;
     }
 
     switch (m_dir) {
-    case 0:
-      return {m_x + m_dx / 2 - 1, m_y, m_dir, speed};
-    case 1:
-      return {m_x, m_y + m_dy / 2 - 1, m_dir, speed};
-    case 2:
-      return {m_x + m_dx / 2 - 1, m_y + m_dy - 4, m_dir, speed};
-    case 3:
-      return {m_x + m_dx - 4, m_y + m_dy / 2 - 1, m_dir, speed};
+    case up:
+      return {m_x + m_width / 2 - 1, m_y, m_dir, speed};
+    case left:
+      return {m_x, m_y + m_width / 2 - 1, m_dir, speed};
+    case down:
+      return {m_x + m_width / 2 - 1, m_y + m_length - 4, m_dir, speed};
+    case right:
+      return {m_x + m_length - 4, m_y + m_width / 2 - 1, m_dir, speed};
     }
-    return {0, 0, 0, 0};
+    return {0, 0, up, 0};
   }
 };
 
@@ -250,40 +272,63 @@ initTankTextures(const sf::Image &Sprites) {
 
           switch (type) {
 
-          case 0:
+          case player:
             dX = 13;
             dY = 13;
             switch (dir) {
-            case 0:
+            case up:
               ofX = 1;
               ofY = 2;
               break;
-            case 1:
+            case left:
               ofX = 2;
               ofY = 1;
               break;
-            case 2:
+            case down:
               ofX = 1;
               ofY = 1;
               break;
-            case 3:
+            case right:
               ofX = 1;
               ofY = 1;
               break;
             }
             break;
 
-            // TODO: write offsets for all tank sprites
+          case sergeant:
+            switch (dir) {
+            case up:
+              dX = 13;
+              dY = 16;
+              ofX = 1;
+              ofY = 0;
+              break;
+            case left:
+              dX = 16;
+              dY = 13;
+              ofX = 0;
+              ofY = 1;
+              break;
+            case down:
+              dX = 13;
+              dY = 16;
+              ofX = 1;
+              ofY = 0;
+              break;
+            case right:
+              dX = 16;
+              dY = 13;
+              ofX = 0;
+              ofY = 1;
+              break;
+            }
+            break;
 
-          default:
-            dX = 15;
-            dY = 15;
-            ofX = 1;
-            ofY = 1;
+            // TODO: write offsets for all tank sprites
           }
 
-          int x{dir * 32 + color % 2 * 128 + anim * 16};
-          int y{type * 16 + color / 2 * 128};
+          x = dir * 32 + color % 2 * 128 + anim * 16;
+          y = type * 16 + color / 2 * 128;
           objects.emplace_back(std::make_shared<sf::Texture>(
               Sprites, false, sf::IntRect({x + ofX, y + ofY}, {dX, dY})));
         }
