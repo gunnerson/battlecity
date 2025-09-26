@@ -1,5 +1,6 @@
 //
 // imports {{{1
+#include "Bang.h"
 #include "Base.h"
 #include "GameOver.h"
 #include "Hit.h"
@@ -114,6 +115,11 @@ int main() {
       initHitTextures(Sprites)};
   std::vector<std::unique_ptr<Hit>> Hits{};
 
+  // Bangs
+  const std::vector<std::shared_ptr<sf::Texture>> BangTextures{
+      initBangTextures(Sprites)};
+  std::vector<std::unique_ptr<Bang>> Bangs{};
+
   // Handle events
   const auto onClose{[&window](const sf::Event::Closed &) { window.close(); }};
 
@@ -160,13 +166,14 @@ int main() {
     // Draw projectiles
     for (std::size_t i{0}; i < Projectiles.size(); ++i) {
       Projectiles[i]->move();
+      // Check if projectile hit the base
       if (!g_gameOver && Projectiles[i]->checkBaseHit()) {
         g_gameOver = true;
-        auto [x, y, dir]{Projectiles[i]->getHitPos()};
-        Hits.emplace_back(std::make_unique<Hit>(x, y, dir));
+        Bangs.emplace_back(std::make_unique<Bang>(88, 176));
         Projectiles.erase(Projectiles.begin() + i);
         base->kill();
       } else {
+        // Check if projectile hit a wall
         auto texture{Projectiles[i]->getTexture(ProjectileTextures)};
         sf::Sprite sprite(*texture);
         sprite.setPosition({static_cast<float>(Projectiles[i]->getX()),
@@ -236,6 +243,20 @@ int main() {
       gameOver->anim();
     }
 
+    // Draw bangs
+    for (std::size_t i{0}; i < Bangs.size(); ++i) {
+      if (Bangs[i]->is_alive()) {
+        auto bangTexture{Bangs[i]->getTexture(BangTextures)};
+        auto bangSprite{sf::Sprite(*bangTexture)};
+        bangSprite.setPosition({static_cast<float>(Bangs[i]->getX()),
+                                static_cast<float>(Bangs[i]->getY())});
+        window.draw(bangSprite);
+        Bangs[i]->anim();
+      } else {
+        Bangs.erase(Bangs.begin() + i);
+      }
+    }
+
     // Clean projectiles
     for (std::size_t i{0}; i < Projectiles.size(); ++i) {
       if (Projectiles[i]->is_out()) {
@@ -249,8 +270,6 @@ int main() {
         Walls.erase(Walls.begin() + i);
       }
     }
-
-    // Draw Base
 
     window.display();
   }
