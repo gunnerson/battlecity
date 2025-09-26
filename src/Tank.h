@@ -31,11 +31,12 @@ private:
   int m_dy{};      // Texture height
   int m_anim{0};   // Movement animation counter
   int m_reload{0}; // Reloading
+  int m_shots{1};
 
 public:
-  Tank(int type, int dir, int x, int y,
+  Tank(int type, int x, int y,
        const std::vector<std::shared_ptr<sf::Texture>> &Textures)
-      : m_type{type}, m_dir{dir}, m_x{x}, m_y{y} {
+      : m_type{type}, m_x{x}, m_y{y} {
     auto texture{*getTexture(Textures)};
     auto textureSize{texture.getSize()};
     m_dx = textureSize.x;
@@ -43,39 +44,67 @@ public:
     m_health = 1;
     switch (m_type) {
     case 0:
+    case 1:
+    case 2:
+    case 3:
       m_speed = 1;
       m_color = 0;
+      m_dir = 0;
       break;
     case 4:
       m_speed = 1;
       m_color = 1;
+      m_dir = 2;
       break;
     case 5:
       m_speed = 3;
       m_color = 1;
+      m_dir = 2;
+      m_shots = 2;
       break;
     case 6:
-    case 7:
       m_speed = 2;
       m_color = 1;
+      m_dir = 2;
+      break;
+    case 7:
+      m_speed = 2;
+      m_color = 2;
+      m_dir = 2;
+      m_health = 4;
       break;
     }
   }
-
-  int getDir() const { return m_dir; }
-  void setDir(int dir) { m_dir = dir; }
 
   int getX() const { return m_x; }
   void setX(int x) { m_x = x; }
   int getY() const { return m_y; }
   void setY(int y) { m_y = y; }
+  int getType() const { return m_type; }
+  void setType(int type) { m_type = type; }
+  int getDir() const { return m_dir; }
+  void setDir(int dir) { m_dir = dir; }
 
-  bool is_reloading() const { return m_reload; }
-  // void startReload() { m_reload = g_updateRate * 2; }
-  void startReload() { m_reload = 1; }
+  bool is_alive() const { return m_health > 0; }
+
+  void addShot() { ++m_shots; }
+  void shoot() {
+    --m_shots;
+    m_reload = g_updateRate / 3;
+  }
+  bool canShoot() { return m_shots > 0 && !m_reload; }
   void reload() {
     if (m_reload)
       --m_reload;
+  }
+
+  void hit(bool fatal = false) {
+    if (fatal)
+      m_health = 0;
+    else
+      --m_health;
+    if (m_type == 7 and m_health <= 1)
+      m_color = 1;
   }
 
   std::shared_ptr<sf::Texture>
@@ -187,9 +216,6 @@ public:
       break;
     case 7:
       speed = 4;
-      break;
-    default:
-      speed = 2;
       break;
     }
 

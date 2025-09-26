@@ -1,4 +1,5 @@
 #pragma once
+#include "Tank.h"
 #include <SFML/Graphics/Texture.hpp>
 #include <memory>
 #include <vector>
@@ -14,14 +15,16 @@ private:
   int m_dir{}; // 0 - up, 1 - left, 2 - down, 3 - right
   int m_speed{};
   bool m_out{false};
+  Tank *m_tank{};
 
 public:
-  Projectile(int x, int y, int dir, int speed)
-      : m_x{x}, m_y{y}, m_dir{dir}, m_speed{speed} {}
+  Projectile(int x, int y, int dir, int speed, Tank *tank)
+      : m_x{x}, m_y{y}, m_dir{dir}, m_speed{speed}, m_tank{tank} {}
 
   int getX() const { return m_x; }
   int getY() const { return m_y; }
   bool is_out() const { return m_out; }
+  void addShot() { m_tank->addShot(); }
 
   void move() {
     switch (m_dir) {

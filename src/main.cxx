@@ -58,10 +58,11 @@ void handleDownKeyReleased() { g_down = false; }
 void handleRightKeyReleased() { g_right = false; }
 void handleSpaceKeyPressed(
     Tank *tank, std::vector<std::unique_ptr<Projectile>> &Projectiles) {
-  if (!g_gameOver && !tank->is_reloading()) {
+  if (!g_gameOver && tank->canShoot()) {
     auto [x, y, dir, speed] = tank->getProjectile();
-    Projectiles.emplace_back(std::make_unique<Projectile>(x, y, dir, speed));
-    tank->startReload();
+    Projectiles.emplace_back(
+        std::make_unique<Projectile>(x, y, dir, speed, tank));
+    tank->shoot();
   }
 }
 
@@ -91,7 +92,7 @@ int main() {
   // User tank
   const std::vector<std::shared_ptr<sf::Texture>> TankTextures{
       initTankTextures(Sprites)};
-  const auto userTank{std::make_unique<Tank>(0, 1, 64, 195, TankTextures)};
+  const auto userTank{std::make_unique<Tank>(0, 64, 195, TankTextures)};
   const auto userTank_ptr{userTank.get()};
   std::shared_ptr<sf::Texture> usertankTexture{
       userTank->getTexture(TankTextures)};
@@ -173,6 +174,7 @@ int main() {
       if (!g_gameOver && Projectiles[i]->checkBaseHit()) {
         g_gameOver = true;
         Bangs.emplace_back(std::make_unique<Bang>(88, 176));
+        Projectiles[i]->addShot();
         Projectiles.erase(Projectiles.begin() + i);
         base->kill();
       } else {
@@ -187,6 +189,7 @@ int main() {
             if (Projectiles[i]->checkCollision(wall->getX(), wall->getY())) {
               auto [x, y, dir]{Projectiles[i]->getHitPos()};
               Hits.emplace_back(std::make_unique<Hit>(x, y, dir));
+              Projectiles[i]->addShot();
               Projectiles.erase(Projectiles.begin() + i);
               break;
             }
@@ -268,6 +271,7 @@ int main() {
     // Clean projectiles
     for (std::size_t i{0}; i < Projectiles.size(); ++i) {
       if (Projectiles[i]->is_out()) {
+        Projectiles[i]->addShot();
         Projectiles.erase(Projectiles.begin() + i);
       }
     }
