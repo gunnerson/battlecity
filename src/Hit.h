@@ -18,7 +18,7 @@ public:
   int getY() const { return m_y; }
   int getAnim() const { return m_anim; }
 
-  bool is_alive() const { return m_anim < g_updateRate * 3 / 15 - 1; }
+  bool is_alive() const { return m_anim < g_updateRate * 3 / 10 - 1; }
   void anim() { ++m_anim; }
 
   bool checkBlast(int x, int y) {
@@ -31,7 +31,7 @@ public:
 
   std::shared_ptr<sf::Texture>
   getTexture(const std::vector<std::shared_ptr<sf::Texture>> &Textures) const {
-    return Textures[m_anim * 15 / g_updateRate];
+    return Textures[m_anim * 10 / g_updateRate];
   };
 };
 
