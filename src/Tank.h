@@ -95,16 +95,12 @@ public:
     if (std::abs(m_dir - dir) % 2) {
       switch (dir) {
       case up:
-        m_y += m_length - m_width;
+      case down:
+        m_y = m_y / 16 * 16;
         break;
       case left:
-        m_x += m_length - m_width;
-        break;
-      case down:
-        m_y -= m_length - m_width;
-        break;
       case right:
-        m_x -= m_length - m_width;
+        m_x = m_x / 16 * 16;
         break;
       }
     }
