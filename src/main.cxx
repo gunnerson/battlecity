@@ -1,6 +1,7 @@
 //
 // imports {{{1
 #include "Base.h"
+#include "GameOver.h"
 #include "Hit.h"
 #include "Projectile.h"
 #include "Tank.h"
@@ -15,6 +16,7 @@ constexpr int g_maxX{208};
 constexpr int g_maxY{208};
 constexpr int g_updateRate{30};
 int g_stage{0};
+bool g_gameOver{false};
 bool g_up{false};
 bool g_left{false};
 bool g_down{false};
@@ -22,24 +24,32 @@ bool g_right{false};
 
 // events {{{1
 void handleUpKeyPressed(Tank *tank) {
-  tank->setDir(0);
-  g_up = true;
-  g_left = g_right = g_down = false;
+  if (!g_gameOver) {
+    tank->setDir(0);
+    g_up = true;
+    g_left = g_right = g_down = false;
+  }
 }
 void handleLeftKeyPressed(Tank *tank) {
-  tank->setDir(1);
-  g_left = true;
-  g_up = g_right = g_down = false;
+  if (!g_gameOver) {
+    tank->setDir(1);
+    g_left = true;
+    g_up = g_right = g_down = false;
+  }
 }
 void handleDownKeyPressed(Tank *tank) {
-  tank->setDir(2);
-  g_down = true;
-  g_up = g_left = g_right = false;
+  if (!g_gameOver) {
+    tank->setDir(2);
+    g_down = true;
+    g_up = g_left = g_right = false;
+  }
 }
 void handleRightKeyPressed(Tank *tank) {
-  tank->setDir(3);
-  g_right = true;
-  g_up = g_left = g_down = false;
+  if (!g_gameOver) {
+    tank->setDir(3);
+    g_right = true;
+    g_up = g_left = g_down = false;
+  }
 }
 void handleUpKeyReleased() { g_up = false; }
 void handleLeftKeyReleased() { g_left = false; }
@@ -47,7 +57,7 @@ void handleDownKeyReleased() { g_down = false; }
 void handleRightKeyReleased() { g_right = false; }
 void handleSpaceKeyPressed(
     Tank *tank, std::vector<std::unique_ptr<Projectile>> &Projectiles) {
-  if (!tank->is_reloading()) {
+  if (!g_gameOver && !tank->is_reloading()) {
     auto [x, y, dir] = tank->getProjectilePos();
     Projectiles.emplace_back(std::make_unique<Projectile>(x, y, dir));
     tank->startReload();
@@ -71,6 +81,11 @@ int main() {
       initBaseTextures(Sprites)};
   auto baseTexture{base->getTexture(BaseTextures)};
   auto baseSprite{sf::Sprite(*baseTexture)};
+
+  // GameOver
+  const auto gameOver{std::make_unique<GameOver>()};
+  auto gameOverTexture{gameOver->getTexture(Sprites)};
+  auto gameOverSprite{sf::Sprite(*gameOverTexture)};
 
   // User tank
   const std::vector<std::shared_ptr<sf::Texture>> TankTextures{
@@ -145,25 +160,33 @@ int main() {
     // Draw projectiles
     for (std::size_t i{0}; i < Projectiles.size(); ++i) {
       Projectiles[i]->move();
-      auto texture{Projectiles[i]->getTexture(ProjectileTextures)};
-      sf::Sprite sprite(*texture);
-      sprite.setPosition({static_cast<float>(Projectiles[i]->getX()),
-                          static_cast<float>(Projectiles[i]->getY())});
-      window.draw(sprite);
-      for (const auto &wall : Walls) {
-        if (wall->is_alive()) {
-          if (Projectiles[i]->checkCollision(wall->getX(), wall->getY())) {
-            auto [x, y, dir]{Projectiles[i]->getHitPos()};
-            Hits.emplace_back(std::make_unique<Hit>(x, y, dir));
-            Projectiles.erase(Projectiles.begin() + i);
-            break;
+      if (!g_gameOver && Projectiles[i]->checkBaseHit()) {
+        g_gameOver = true;
+        auto [x, y, dir]{Projectiles[i]->getHitPos()};
+        Hits.emplace_back(std::make_unique<Hit>(x, y, dir));
+        Projectiles.erase(Projectiles.begin() + i);
+        base->kill();
+      } else {
+        auto texture{Projectiles[i]->getTexture(ProjectileTextures)};
+        sf::Sprite sprite(*texture);
+        sprite.setPosition({static_cast<float>(Projectiles[i]->getX()),
+                            static_cast<float>(Projectiles[i]->getY())});
+        window.draw(sprite);
+        for (const auto &wall : Walls) {
+          if (wall->is_alive()) {
+            if (Projectiles[i]->checkCollision(wall->getX(), wall->getY())) {
+              auto [x, y, dir]{Projectiles[i]->getHitPos()};
+              Hits.emplace_back(std::make_unique<Hit>(x, y, dir));
+              Projectiles.erase(Projectiles.begin() + i);
+              break;
+            }
           }
         }
       }
     }
 
     // Draw user tank
-    if (g_up || g_left || g_down || g_right) {
+    if (!g_gameOver && (g_up || g_left || g_down || g_right)) {
       userTank->updatePos(Walls);
     }
     userTank->reload();
@@ -203,6 +226,14 @@ int main() {
       } else {
         Hits.erase(Hits.begin() + i);
       }
+    }
+
+    // Draw base
+    if (g_gameOver) {
+      gameOverSprite.setPosition({static_cast<float>(gameOver->getX()),
+                                  static_cast<float>(gameOver->getY())});
+      window.draw(gameOverSprite);
+      gameOver->anim();
     }
 
     // Clean projectiles

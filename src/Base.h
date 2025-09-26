@@ -7,12 +7,13 @@ class Base {
 private:
   int m_x{96};
   int m_y{192};
-  bool m_alive{1};
+  bool m_alive{true};
 
 public:
   int getX() const { return m_x; }
   int getY() const { return m_y; }
   bool is_alive() const { return m_alive; }
+  void kill() { m_alive = false; }
 
   std::shared_ptr<sf::Texture>
   getTexture(const std::vector<std::shared_ptr<sf::Texture>> &Textures) const {

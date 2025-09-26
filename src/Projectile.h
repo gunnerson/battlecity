@@ -41,6 +41,14 @@ public:
       m_out = true;
   }
 
+  bool checkBaseHit() {
+    if ((m_dir == 1 and m_x <= 111 and m_x >= 96 and m_y >= 190) ||
+        (m_dir == 2 and m_x >= 94 and m_x <= 111 and m_y >= 189) ||
+        (m_dir == 3 and m_x >= 93 and m_x <= 108 and m_y >= 190))
+      return true;
+    return false;
+  }
+
   bool checkCollision(int x, int y) {
     if ((!(m_dir % 2) && (x + 4 > m_x) && (x < m_x + 3) && (y + 4 > m_y) &&
          (y < m_y + 4)) ||
