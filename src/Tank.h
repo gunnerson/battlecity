@@ -93,16 +93,7 @@ public:
   int getDir() const { return m_dir; }
   void setDir(Dir dir) {
     if (std::abs(m_dir - dir) % 2) {
-      switch (dir) {
-      case up:
-      case down:
-        m_y = m_y / 4 * 4;
-        break;
-      case left:
-      case right:
-        m_x = m_x / 4 * 4;
-        break;
-      }
+      (dir % 2) ? m_x = m_x / 4 * 4 : m_y = m_y / 4 * 4;
     }
     m_dir = dir;
   }
