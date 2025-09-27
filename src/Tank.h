@@ -125,7 +125,7 @@ public:
       m_health = 0;
     else
       --m_health;
-    if (m_type == 7 and m_health <= 1)
+    if (m_type == 7 && m_health <= 1)
       m_color = gray;
   }
 
@@ -146,7 +146,7 @@ public:
       m_dir = right;
 
     bool collisionDetected = false;
-    if (m_dir == up and m_y != 0) {
+    if (m_dir == up && m_y != 0) {
       for (const auto &obj : Walls) {
         if (obj->is_alive()) {
           int x{obj->getX()};
@@ -162,7 +162,7 @@ public:
         ++m_anim;
       }
 
-    } else if (m_dir == left and m_x != 0) {
+    } else if (m_dir == left && m_x != 0) {
       for (const auto &obj : Walls) {
         if (obj->is_alive()) {
           int x{obj->getX()};
@@ -178,7 +178,7 @@ public:
         ++m_anim;
       }
 
-    } else if (m_dir == down and m_y != g_maxY - m_length) {
+    } else if (m_dir == down && m_y != g_maxY - m_length) {
       for (const auto &obj : Walls) {
         if (obj->is_alive()) {
           int x{obj->getX()};
@@ -194,7 +194,7 @@ public:
         ++m_anim;
       }
 
-    } else if (m_dir == right and m_x != g_maxX - m_length) {
+    } else if (m_dir == right && m_x != g_maxX - m_length) {
       for (const auto &obj : Walls) {
         if (obj->is_alive()) {
           int x{obj->getX()};

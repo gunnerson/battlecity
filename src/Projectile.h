@@ -47,9 +47,9 @@ public:
   }
 
   bool checkBaseHit() {
-    if ((m_dir == left and m_x <= 111 and m_x >= 96 and m_y >= 190) ||
-        (m_dir == down and m_x >= 94 and m_x <= 111 and m_y >= 189) ||
-        (m_dir == right and m_x >= 93 and m_x <= 108 and m_y >= 190))
+    if ((m_dir == left && m_x <= 111 && m_x >= 96 && m_y >= 190) ||
+        (m_dir == down && m_x >= 94 && m_x <= 111 && m_y >= 189) ||
+        (m_dir == right && m_x >= 93 && m_x <= 108 && m_y >= 190))
       return true;
     return false;
   }
