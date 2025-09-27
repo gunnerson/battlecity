@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.28)
-project(CMakeSFMLProject LANGUAGES CXX)
+project(Battlecity LANGUAGES CXX)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
@@ -13,6 +13,6 @@ FetchContent_Declare(SFML
 FetchContent_MakeAvailable(SFML)
 
 add_executable(main src/main.cxx)
-file(COPY "${PROJECT_SOURCE_DIR}/res/sprites.png" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/bin/res/")
+file(COPY "${PROJECT_SOURCE_DIR}/res/sprites.png" DESTINATION "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/res/")
 target_compile_features(main PRIVATE cxx_std_17)
 target_link_libraries(main PRIVATE SFML::Graphics)

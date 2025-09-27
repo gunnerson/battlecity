@@ -96,11 +96,11 @@ public:
       switch (dir) {
       case up:
       case down:
-        m_y = m_y / 16 * 16;
+        m_y = m_y / 4 * 4;
         break;
       case left:
       case right:
-        m_x = m_x / 16 * 16;
+        m_x = m_x / 4 * 4;
         break;
       }
     }
