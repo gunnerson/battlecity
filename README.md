@@ -15,14 +15,14 @@
 - [x] Tanks
 - [x] Projectiles
 - [x] AI
-- Forest
-- Water
-- Ice
-- Bonuses
-- Start Menu
-- Score board
-- Levels
-- Sounds
+- [ ] Forest
+- [ ] Water
+- [ ] Ice
+- [ ] Bonuses
+- [ ] Start Menu
+- [ ] Score board
+- [ ] Levels
+- [ ] Sounds
 
 
 
