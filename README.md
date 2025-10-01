@@ -6,22 +6,23 @@
 4. Compile the project `cmake --build .` 
 5. On author's machine it generated the executable at `./bin/main`
 
-# TODO
+# Progress
 - [x] Window generation
 - [x] Sprites
+- [x] Base
+- [x] Game cycle
 - [x] Brick Walls
 - [x] Steel Walls
-- [x] Base
-- [x] Tanks
-- [x] Projectiles
-- [x] AI
 - [ ] Forest
 - [ ] Water
 - [ ] Ice
+- [x] Tanks
+- [x] Projectiles
+- [x] AI
 - [ ] Bonuses
+- [ ] All Levels
 - [ ] Start Menu
 - [ ] Score board
-- [ ] Levels
 - [ ] Sounds
 
 
