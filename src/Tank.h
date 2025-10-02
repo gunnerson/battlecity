@@ -26,6 +26,7 @@ private:
   int m_speed{};     // Pixels per 1/refreshRate
   Color m_color{};   // 0 - yellow, 1 - gray, 2 - green, 3 - red
   Dir m_dir{};       // 0 - up, 1 - left, 2 - down, 3 - right
+  bool m_upgrade{};  // Drops upgrade when shot
   int m_length{};    // Texture length
   int m_width{};     // Texture width
   int m_anim{0};     // Movement animation counter
@@ -41,9 +42,13 @@ private:
 
 public:
   // Constructor {{{1
-  Tank(TankType type, int x, int y) : m_type{type}, m_x{x}, m_y{y} {
+  Tank(TankType type, int x, int y, bool upgrade = false)
+      : m_type{type}, m_x{x}, m_y{y}, m_upgrade(upgrade) {
     switch (m_type) {
     case player:
+    case sergeant:
+    case colonel:
+    case general:
       m_speed = 2;
       m_width = 13;
       m_length = 13;
@@ -52,33 +57,6 @@ public:
       m_x += 1;
       m_y += 3;
       m_health = 3;
-      break;
-    case sergeant:
-      m_speed = 2;
-      m_width = 13;
-      m_length = 16;
-      m_color = yellow;
-      m_dir = up;
-      m_x += 1;
-      m_shots += 1;
-      break;
-    case colonel:
-      m_speed = 2;
-      m_width = 13;
-      m_length = 15;
-      m_color = yellow;
-      m_dir = up;
-      m_x += 1;
-      m_shots += 1;
-      break;
-    case general:
-      m_speed = 2;
-      m_width = 14;
-      m_length = 15;
-      m_color = yellow;
-      m_dir = up;
-      m_x += 1;
-      m_shots += 1;
       break;
     case basic:
       m_speed = 1;
@@ -126,11 +104,46 @@ public:
   int getHealth() const { return m_health; }
   int getImmunity() { return (m_immunity > 0) ? --m_immunity : m_immunity; }
   TankType getType() const { return m_type; }
-  void setType(TankType type) {
-    m_type = type;
-    if (m_type == colonel)
-      ++m_shots;
+
+  void upgrade() {
+    if (m_type < general) {
+      m_type = static_cast<TankType>(static_cast<int>(m_type) + 1);
+      switch (m_type) {
+      case sergeant:
+        m_length = 16;
+        switch (m_dir) {
+        case up:
+        case left:
+          break;
+        case down:
+          m_y -= 3;
+          break;
+        case right:
+          m_x -= 3;
+        }
+      case colonel:
+        ++m_shots;
+        m_length = 15;
+      case general:
+        m_width = 14;
+        switch (m_dir) {
+        case up:
+        case down:
+          if (m_x % 4 == 3)
+            --m_x;
+          break;
+        case left:
+        case right:
+          if (m_y % 4 == 3)
+            --m_y;
+          break;
+        }
+      default:
+        break;
+      }
+    }
   }
+
   std::tuple<int, int> getSize() const {
     if (m_dir % 2)
       return {m_length, m_width};
