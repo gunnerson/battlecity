@@ -408,8 +408,9 @@ int main() {
             spawnX = 194;
             break;
           }
-          Tanks.emplace_back(
-              std::make_unique<Tank>(NPCsArray[g_stage][nextNPC], spawnX, 0));
+          Tanks.emplace_back(std::make_unique<Tank>(
+              NPCsArray[g_stage][nextNPC], spawnX, 0,
+              (nextNPC == 3 || nextNPC == 10 || nextNPC == 17)));
           ++nextNPC;
           nextSpawn += g_spawnDelay * g_refreshRate;
         }

@@ -105,45 +105,6 @@ public:
   int getImmunity() { return (m_immunity > 0) ? --m_immunity : m_immunity; }
   TankType getType() const { return m_type; }
 
-  void upgrade() {
-    if (m_type < general) {
-      m_type = static_cast<TankType>(static_cast<int>(m_type) + 1);
-      switch (m_type) {
-      case sergeant:
-        m_length = 16;
-        switch (m_dir) {
-        case up:
-        case left:
-          break;
-        case down:
-          m_y -= 3;
-          break;
-        case right:
-          m_x -= 3;
-        }
-      case colonel:
-        ++m_shots;
-        m_length = 15;
-      case general:
-        m_width = 14;
-        switch (m_dir) {
-        case up:
-        case down:
-          if (m_x % 4 == 3)
-            --m_x;
-          break;
-        case left:
-        case right:
-          if (m_y % 4 == 3)
-            --m_y;
-          break;
-        }
-      default:
-        break;
-      }
-    }
-  }
-
   std::tuple<int, int> getSize() const {
     if (m_dir % 2)
       return {m_length, m_width};
@@ -189,10 +150,50 @@ public:
 
   sf::Sprite *
   getSprite(const std::vector<std::unique_ptr<sf::Sprite>> &Sprites) const {
-    int idx{m_type * 32 + m_color * 8 + m_dir * 2};
+    int idx{m_type * 32 + (m_upgrade ? 24 : m_color * 8) + m_dir * 2};
     return m_anim % 2 ? Sprites[idx].get() : Sprites[++idx].get();
   };
 
+  // upgrade {{{1
+  void upgrade() {
+    if (m_type < general) {
+      m_type = static_cast<TankType>(static_cast<int>(m_type) + 1);
+      switch (m_type) {
+      case sergeant:
+        m_length = 16;
+        switch (m_dir) {
+        case up:
+        case left:
+          break;
+        case down:
+          m_y -= 3;
+          break;
+        case right:
+          m_x -= 3;
+        }
+      case colonel:
+        ++m_shots;
+        m_length = 15;
+      case general:
+        m_width = 14;
+        switch (m_dir) {
+        case up:
+        case down:
+          if (m_x % 4 == 3)
+            --m_x;
+          break;
+        case left:
+        case right:
+          if (m_y % 4 == 3)
+            --m_y;
+          break;
+        }
+      default:
+        break;
+      }
+    }
+  }
+  // }}}1
   // setDir {{{1
   void setDir(Dir dir) {
     if (std::abs(m_dir - dir) % 2) {
@@ -394,6 +395,8 @@ public:
         m_dirRestrict = {1, 1, 1, 1};
       }
     }
+    if (m_anim > 5 * g_refreshRate)
+      m_upgrade = false;
   }
   // }}}1
   // getProjectile {{{1
