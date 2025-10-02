@@ -14,6 +14,7 @@
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
+#include <cstdlib>
 #include <iostream>
 #include <memory>
 #include <random>
@@ -24,8 +25,8 @@
 const int g_maxX{208}; // Battlefield size, horizontal
 const int g_maxY{208}; // Battlefield size, vertical
 const int g_ofX{4};    // Frame size, horizontal
-const int g_ofY{4};    // Frame size, vertical
-const int g_info{32};  // Info panel width
+const int g_ofY{20};   // Frame size, vertical
+const int g_info{36};  // Info panel width
 const int g_refreshRate{30};
 int g_stage{1};
 int g_score{0};
@@ -85,7 +86,7 @@ int main() {
   // Window {{{3
   auto window{sf::RenderWindow(
       sf::VideoMode({static_cast<unsigned int>(g_maxX) + g_ofX + g_info,
-                     static_cast<unsigned int>(g_maxY) + g_ofY + g_info}),
+                     static_cast<unsigned int>(g_maxY) + g_ofY * 2}),
       "Battlecity")};
   window.setFramerateLimit(g_refreshRate);
   window.setKeyRepeatEnabled(false);
@@ -242,6 +243,12 @@ int main() {
           {g_ofX + g_maxX + 13, g_ofY + 176});
       window.draw(*NumberSprites[g_stage / 10]);
       window.draw(*NumberSprites[g_stage % 10]);
+    }
+    auto const score_str{std::to_string(g_score)};
+    for (int i{0}; i < score_str.length(); ++i) {
+      NumberSprites[score_str[i] - '0']->setPosition(
+          {static_cast<float>(g_ofX + 8 * i), g_ofY + g_maxY + 8});
+      window.draw(*NumberSprites[score_str[i] - '0']);
     }
 
     // Draw base {{{3
@@ -437,6 +444,5 @@ int main() {
     window.display();
   }
   // }}}2
-  std::cout << "Your score is: " << g_score << std::endl;
 }
 // }}}1
