@@ -439,12 +439,12 @@ int main() {
     }
 
     // Change stage {{{3
-    if (nextNPC == 20 && Tanks.size() == 1 && playerTank->is_alive() &&
-        Hits.empty() && Projectiles.empty()) {
+    if (!g_gameOver && nextNPC == 20 && Tanks.size() == 1 && Hits.empty() &&
+        Projectiles.empty()) {
       ++g_stage;
       if (g_stage == std::min(wallsArray.size(), NPCsArray.size())) {
         g_stage = 1;
-        g_spawnDelay = std::max(1, g_spawnDelay - 4);
+        g_spawnDelay = std::max(1, g_spawnDelay - 1);
       }
       nextSpawn = -10 * g_refreshRate;
       nextNPC = 0;
