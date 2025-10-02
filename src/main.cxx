@@ -199,35 +199,35 @@ int main() {
 
     // Draw score board {{{3
     for (int i{0}; i < 20 - nextNPC; ++i) {
-      npcLife.setPosition({static_cast<float>(g_ofX + g_maxX + 4 + (i % 2) * 8),
+      npcLife.setPosition({static_cast<float>(g_ofX + g_maxX + 8 + (i % 2) * 8),
                            static_cast<float>(g_ofY + 8 * (i / 2))});
       window.draw(npcLife);
     }
 
-    playerLife.setPosition({g_ofX + g_maxX + 4, g_ofY + 112});
+    playerLife.setPosition({g_ofX + g_maxX + 8, g_ofY + 112});
     window.draw(playerLife);
 
     NumberSprites[playerTank->getHealth()]->setPosition(
-        {g_ofX + g_maxX + 12, g_ofY + 120});
+        {g_ofX + g_maxX + 16, g_ofY + 120});
     window.draw(*NumberSprites[playerTank->getHealth()]);
 
-    stage.setPosition({g_ofX + g_maxX + 4, g_ofY + 160});
+    stage.setPosition({g_ofX + g_maxX + 8, g_ofY + 160});
     window.draw(stage);
     if (g_stage < 10) {
-      NumberSprites[g_stage]->setPosition({g_ofX + g_maxX + 9, g_ofY + 176});
+      NumberSprites[g_stage]->setPosition({g_ofX + g_maxX + 13, g_ofY + 176});
       window.draw(*NumberSprites[g_stage]);
     } else {
       NumberSprites[g_stage / 10]->setPosition(
-          {g_ofX + g_maxX + 5, g_ofY + 176});
+          {g_ofX + g_maxX + 9, g_ofY + 176});
       NumberSprites[g_stage % 10]->setPosition(
-          {g_ofX + g_maxX + 13, g_ofY + 176});
+          {g_ofX + g_maxX + 17, g_ofY + 176});
       window.draw(*NumberSprites[g_stage / 10]);
       window.draw(*NumberSprites[g_stage % 10]);
     }
     auto const score_str{std::to_string(g_score)};
     for (int i{0}; i < score_str.length(); ++i) {
       NumberSprites[score_str[i] - '0']->setPosition(
-          {static_cast<float>(g_ofX + 8 * i), g_ofY + g_maxY + 8});
+          {static_cast<float>(g_ofX + 8 + 8 * i), g_ofY + g_maxY + 8});
       window.draw(*NumberSprites[score_str[i] - '0']);
     }
 
