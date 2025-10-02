@@ -31,54 +31,11 @@ const int g_refreshRate{30};
 int g_stage{1};
 int g_score{0};
 bool g_gameOver{false};
+bool g_pause{false};
 bool g_up{false};
 bool g_left{false};
 bool g_down{false};
 bool g_right{false};
-
-// Event handlers {{{1
-static void handleUpKeyPressed(Tank *tank) {
-  if (!g_gameOver) {
-    tank->setDir(up);
-    g_up = true;
-    g_left = g_right = g_down = false;
-  }
-}
-static void handleLeftKeyPressed(Tank *tank) {
-  if (!g_gameOver) {
-    tank->setDir(left);
-    g_left = true;
-    g_up = g_right = g_down = false;
-  }
-}
-static void handleDownKeyPressed(Tank *tank) {
-  if (!g_gameOver) {
-    tank->setDir(down);
-    g_down = true;
-    g_up = g_left = g_right = false;
-  }
-}
-static void handleRightKeyPressed(Tank *tank) {
-  if (!g_gameOver) {
-    tank->setDir(right);
-    g_right = true;
-    g_up = g_left = g_down = false;
-  }
-}
-static void handleUpKeyReleased() { g_up = false; }
-static void handleLeftKeyReleased() { g_left = false; }
-static void handleDownKeyReleased() { g_down = false; }
-static void handleRightKeyReleased() { g_right = false; }
-static void
-handleSpaceKeyPressed(std::shared_ptr<Tank> tank,
-                      std::vector<std::unique_ptr<Projectile>> &Projectiles) {
-  if (!g_gameOver && tank->canShoot()) {
-    auto [x, y, dir, speed]{tank->getProjectile()};
-    Projectiles.emplace_back(
-        std::make_unique<Projectile>(x, y, dir, speed, tank));
-    tank->shoot();
-  }
-}
 
 // main {{{1
 int main() {
@@ -117,6 +74,10 @@ int main() {
   // GameOver {{{3
   const auto gameOver{std::make_unique<GameOver>()};
   const auto gameOverSprite{gameOver->getSprite(Textures)};
+
+  // Pause {{{3
+  sf::Sprite pause(Textures, sf::IntRect({289, 176}, {39, 7}));
+  pause.setPosition({g_ofX + 84, g_ofY + 105});
 
   // Upgrades {{{3
   const std::vector<std::unique_ptr<sf::Sprite>> UpgradeSprites{
@@ -185,31 +146,50 @@ int main() {
 
   const auto onKeyPressed{[&window, &playerTank, &Projectiles](
                               const sf::Event::KeyPressed &keyPressed) {
-    if (keyPressed.scancode == sf::Keyboard::Scancode::Escape)
+    if (keyPressed.scancode == sf::Keyboard::Scancode::Escape) {
       window.close();
-    else if (keyPressed.scancode == sf::Keyboard::Scancode::Up)
-      handleUpKeyPressed(playerTank.get());
-    else if (keyPressed.scancode == sf::Keyboard::Scancode::Left)
-      handleLeftKeyPressed(playerTank.get());
-    else if (keyPressed.scancode == sf::Keyboard::Scancode::Down)
-      handleDownKeyPressed(playerTank.get());
-    else if (keyPressed.scancode == sf::Keyboard::Scancode::Right)
-      handleRightKeyPressed(playerTank.get());
-    else if (keyPressed.scancode == sf::Keyboard::Scancode::Space)
-      handleSpaceKeyPressed(playerTank, Projectiles);
+    } else if (keyPressed.scancode == sf::Keyboard::Scancode::Up &&
+               !g_gameOver && !g_pause) {
+      playerTank->setDir(up);
+      g_up = true;
+      g_left = g_right = g_down = false;
+    } else if (keyPressed.scancode == sf::Keyboard::Scancode::Left &&
+               !g_gameOver && !g_pause) {
+      playerTank->setDir(left);
+      g_left = true;
+      g_up = g_right = g_down = false;
+    } else if (keyPressed.scancode == sf::Keyboard::Scancode::Down &&
+               !g_gameOver && !g_pause) {
+      playerTank->setDir(down);
+      g_down = true;
+      g_up = g_left = g_right = false;
+    } else if (keyPressed.scancode == sf::Keyboard::Scancode::Right &&
+               !g_gameOver && !g_pause) {
+      playerTank->setDir(right);
+      g_right = true;
+      g_up = g_left = g_down = false;
+    } else if (keyPressed.scancode == sf::Keyboard::Scancode::Space &&
+               !g_gameOver && !g_pause && playerTank->canShoot()) {
+      auto [x, y, dir, speed]{playerTank->getProjectile()};
+      Projectiles.emplace_back(
+          std::make_unique<Projectile>(x, y, dir, speed, playerTank));
+      playerTank->shoot();
+    }
   }};
 
-  const auto onKeyReleased{
-      [&window](const sf::Event::KeyReleased &keyReleased) {
-        if (keyReleased.scancode == sf::Keyboard::Scancode::Up)
-          handleUpKeyReleased();
-        else if (keyReleased.scancode == sf::Keyboard::Scancode::Left)
-          handleLeftKeyReleased();
-        else if (keyReleased.scancode == sf::Keyboard::Scancode::Down)
-          handleDownKeyReleased();
-        else if (keyReleased.scancode == sf::Keyboard::Scancode::Right)
-          handleRightKeyReleased();
-      }};
+  const auto onKeyReleased{[&window](
+                               const sf::Event::KeyReleased &keyReleased) {
+    if (keyReleased.scancode == sf::Keyboard::Scancode::Pause && !g_gameOver)
+      g_pause = !g_pause;
+    else if (keyReleased.scancode == sf::Keyboard::Scancode::Up && !g_pause)
+      g_up = false;
+    else if (keyReleased.scancode == sf::Keyboard::Scancode::Left && !g_pause)
+      g_left = false;
+    else if (keyReleased.scancode == sf::Keyboard::Scancode::Down && !g_pause)
+      g_down = false;
+    else if (keyReleased.scancode == sf::Keyboard::Scancode::Right && !g_pause)
+      g_right = false;
+  }};
 
   // Main cycle {{{2
   while (window.isOpen()) {
@@ -217,7 +197,7 @@ int main() {
     window.clear(sf::Color(99, 99, 99));
     window.draw(battlefield);
 
-    // Draw score board
+    // Draw score board {{{3
     for (int i{0}; i < 20 - nextNPC; ++i) {
       npcLife.setPosition({static_cast<float>(g_ofX + g_maxX + 4 + (i % 2) * 8),
                            static_cast<float>(g_ofY + 8 * (i / 2))});
@@ -258,82 +238,86 @@ int main() {
     window.draw(*baseSprite);
 
     // Draw projectiles {{{3
-    for (std::size_t i{0}; i < Projectiles.size(); ++i) {
-      // Check if projectile hit the base
-      if (!g_gameOver && Projectiles[i]->checkBaseHit()) {
-        g_gameOver = true;
-        Bangs.emplace_back(std::make_unique<Bang>(88, 176));
-        base->kill();
-      } else {
-        // Check if projectile hit a wall
-        if (Projectiles[i]->checkCollision(Walls)) {
-          const auto [x, y]{Projectiles[i]->getHitPos()};
-          Hits.emplace_back(std::make_unique<Hit>(x, y));
-          // Check if projectile hit another projectile
-        } else if (Projectiles[i]->checkCollision(Projectiles)) {
-          // Check if projectile hit a tank
-        } else if (Projectiles[i]->checkCollision(Tanks, Hits)) {
-          if (!g_gameOver && !playerTank->is_alive()) {
-            g_gameOver = true;
-            Bangs.emplace_back(std::make_unique<Bang>(88, 176));
-            base->kill();
-          }
-          // Draw projectile
+    if (!g_pause) {
+      for (std::size_t i{0}; i < Projectiles.size(); ++i) {
+        // Check if projectile hit the base
+        if (!g_gameOver && Projectiles[i]->checkBaseHit()) {
+          g_gameOver = true;
+          Bangs.emplace_back(std::make_unique<Bang>(88, 176));
+          base->kill();
         } else {
-          const auto sprite{Projectiles[i]->getSprite(ProjectileSprites)};
-          sprite->setPosition(
-              {g_ofX + static_cast<float>(Projectiles[i]->getX()),
-               g_ofY + static_cast<float>(Projectiles[i]->getY())});
-          window.draw(*sprite);
-          Projectiles[i]->move();
+          // Check if projectile hit a wall
+          if (Projectiles[i]->checkCollision(Walls)) {
+            const auto [x, y]{Projectiles[i]->getHitPos()};
+            Hits.emplace_back(std::make_unique<Hit>(x, y));
+            // Check if projectile hit another projectile
+          } else if (Projectiles[i]->checkCollision(Projectiles)) {
+            // Check if projectile hit a tank
+          } else if (Projectiles[i]->checkCollision(Tanks, Hits)) {
+            if (!g_gameOver && !playerTank->is_alive()) {
+              g_gameOver = true;
+              Bangs.emplace_back(std::make_unique<Bang>(88, 176));
+              base->kill();
+            }
+            // Draw projectile
+          } else {
+            const auto sprite{Projectiles[i]->getSprite(ProjectileSprites)};
+            sprite->setPosition(
+                {g_ofX + static_cast<float>(Projectiles[i]->getX()),
+                 g_ofY + static_cast<float>(Projectiles[i]->getY())});
+            window.draw(*sprite);
+            Projectiles[i]->move();
+          }
         }
       }
     }
 
     // Draw tanks {{{3
-    for (const auto &tank : Tanks) {
-      if (tank->is_alive()) {
-        const auto tankSprite{tank->getSprite(TankSprites)};
-        const auto [dx, dy]{tank->getSize()};
-        tankSprite->setPosition({g_ofX + static_cast<float>(tank->getX()),
-                                 g_ofY + static_cast<float>(tank->getY())});
-        window.draw(*tankSprite);
-        const int immunity{tank->getImmunity()};
-        if (immunity > 0) {
-          const auto immunitySprite{ImmunitySprites[immunity % 4 > 1].get()};
-          immunitySprite->setPosition(
-              {g_ofX + static_cast<float>(tank->getX() - 1),
-               g_ofY + static_cast<float>(tank->getY() - 1)});
-          window.draw(*immunitySprite);
-        }
+    if (!g_pause) {
+      for (const auto &tank : Tanks) {
+        if (tank->is_alive()) {
+          const auto tankSprite{tank->getSprite(TankSprites)};
+          const auto [dx, dy]{tank->getSize()};
+          tankSprite->setPosition({g_ofX + static_cast<float>(tank->getX()),
+                                   g_ofY + static_cast<float>(tank->getY())});
+          window.draw(*tankSprite);
+          const int immunity{tank->getImmunity()};
+          if (immunity > 0) {
+            const auto immunitySprite{ImmunitySprites[immunity % 4 > 1].get()};
+            immunitySprite->setPosition(
+                {g_ofX + static_cast<float>(tank->getX() - 1),
+                 g_ofY + static_cast<float>(tank->getY() - 1)});
+            window.draw(*immunitySprite);
+          }
 
-        if (tank->getType() < basic) {
-          // Player tank
-          if (!g_gameOver) {
+          if (tank->getType() < basic) {
+            // Player tank
+            if (!g_gameOver) {
+              if (tank->is_disabled())
+                tank->repair();
+              else if (g_up || g_left || g_down || g_right) {
+                tank->updatePos(Walls, Tanks);
+              }
+            }
+            tank->reload();
+
+          } else {
+            // NPCs
             if (tank->is_disabled())
               tank->repair();
-            else if (g_up || g_left || g_down || g_right) {
+            else {
               tank->updatePos(Walls, Tanks);
+              if (tank->canShoot() && rng100(mt) > 90) {
+                const auto [x, y, dir, speed]{tank->getProjectile()};
+                Projectiles.emplace_back(
+                    std::make_unique<Projectile>(x, y, dir, speed, tank));
+                tank->shoot();
+              } else {
+                tank->reload();
+              }
+              tank->updateDir(std::vector<int>{
+                  rng100(mt), rng100(mt), rng100(mt), rng100(mt), rng100(mt)});
             }
-          }
-          tank->reload();
-
-        } else {
-          // NPCs
-          if (tank->is_disabled())
-            tank->repair();
-          else {
-            tank->updatePos(Walls, Tanks);
-            if (tank->canShoot() && rng100(mt) > 90) {
-              const auto [x, y, dir, speed]{tank->getProjectile()};
-              Projectiles.emplace_back(
-                  std::make_unique<Projectile>(x, y, dir, speed, tank));
-              tank->shoot();
-            } else {
-              tank->reload();
-            }
-            tank->updateDir(std::vector<int>{rng100(mt), rng100(mt), rng100(mt),
-                                             rng100(mt), rng100(mt)});
           }
         }
       }
@@ -350,74 +334,85 @@ int main() {
     }
 
     // Draw hits {{{3
-    for (std::size_t i{0}; i < Hits.size(); ++i) {
-      if (Hits[i]->is_alive()) {
-        const auto sprite{Hits[i]->getSprite(HitSprites)};
-        sprite->setPosition({g_ofX + static_cast<float>(Hits[i]->getX()),
-                             g_ofY + static_cast<float>(Hits[i]->getY())});
-        window.draw(*sprite);
-        Hits[i]->anim();
-        if (Hits[i]->getAnim() == 1) {
-          for (const auto &wall : Walls) {
-            if (Hits[i]->checkBlast(wall->getX(), wall->getY())) {
-              wall->kill();
+    if (!g_pause) {
+      for (std::size_t i{0}; i < Hits.size(); ++i) {
+        if (Hits[i]->is_alive()) {
+          const auto sprite{Hits[i]->getSprite(HitSprites)};
+          sprite->setPosition({g_ofX + static_cast<float>(Hits[i]->getX()),
+                               g_ofY + static_cast<float>(Hits[i]->getY())});
+          window.draw(*sprite);
+          Hits[i]->anim();
+          if (Hits[i]->getAnim() == 1) {
+            for (const auto &wall : Walls) {
+              if (Hits[i]->checkBlast(wall->getX(), wall->getY())) {
+                wall->kill();
+              }
             }
           }
+        } else {
+          Hits.erase(Hits.begin() + i);
         }
-      } else {
-        Hits.erase(Hits.begin() + i);
       }
     }
 
     // Draw bangs {{{3
-    for (std::size_t i{0}; i < Bangs.size(); ++i) {
-      if (Bangs[i]->is_alive()) {
-        const auto sprite{Bangs[i]->getSprite(BangSprites)};
-        sprite->setPosition({g_ofX + static_cast<float>(Bangs[i]->getX()),
-                             g_ofY + static_cast<float>(Bangs[i]->getY())});
-        window.draw(*sprite);
-        Bangs[i]->anim();
-      } else {
-        Bangs.erase(Bangs.begin() + i);
+    if (!g_pause) {
+      for (std::size_t i{0}; i < Bangs.size(); ++i) {
+        if (Bangs[i]->is_alive()) {
+          const auto sprite{Bangs[i]->getSprite(BangSprites)};
+          sprite->setPosition({g_ofX + static_cast<float>(Bangs[i]->getX()),
+                               g_ofY + static_cast<float>(Bangs[i]->getY())});
+          window.draw(*sprite);
+          Bangs[i]->anim();
+        } else {
+          Bangs.erase(Bangs.begin() + i);
+        }
       }
     }
 
-    // Draw GameOver {{{3
+    // Draw gameover {{{3
     if (g_gameOver) {
       gameOverSprite->setPosition(
           {g_ofX + static_cast<float>(gameOver->getX()),
            g_ofY + static_cast<float>(gameOver->getY())});
       window.draw(*gameOverSprite);
-      gameOver->anim();
+      if (!g_pause)
+        gameOver->anim();
     }
 
+    // Draw pause {{{3
+    if (g_pause)
+      window.draw(pause);
+
     // Spawn Tanks {{{3
-    if (nextSpawn <= 0) {
-      const int spawnSpot{rng3(mt)};
-      bool occupied{false};
-      for (const auto &tank : Tanks) {
-        if (tank->onSpawn(spawnSpot)) {
-          occupied = true;
-          break;
+    if (!g_pause) {
+      if (nextSpawn <= 0) {
+        const int spawnSpot{rng3(mt)};
+        bool occupied{false};
+        for (const auto &tank : Tanks) {
+          if (tank->onSpawn(spawnSpot)) {
+            occupied = true;
+            break;
+          }
+        }
+        if (!occupied && nextNPC < 20) {
+          int spawnX{0};
+          switch (spawnSpot) {
+          case 2:
+            spawnX = 97;
+            break;
+          case 3:
+            spawnX = 194;
+            break;
+          }
+          Tanks.emplace_back(
+              std::make_unique<Tank>(NPCsArray[g_stage][nextNPC], spawnX, 0));
+          ++nextNPC;
+          nextSpawn += 5 * g_refreshRate;
         }
       }
-      if (!occupied && nextNPC < 20) {
-        int spawnX{0};
-        switch (spawnSpot) {
-        case 2:
-          spawnX = 97;
-          break;
-        case 3:
-          spawnX = 194;
-          break;
-        }
-        Tanks.emplace_back(
-            std::make_unique<Tank>(NPCsArray[g_stage][nextNPC], spawnX, 0));
-        ++nextNPC;
-        nextSpawn += 5 * g_refreshRate;
-      }
+      --nextSpawn;
     }
-    --nextSpawn;
 
     // Clean tanks {{{3
     for (std::size_t i{0}; i < Tanks.size(); ++i) {
