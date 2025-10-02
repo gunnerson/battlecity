@@ -128,7 +128,7 @@ public:
               obj->hit();
               obj->respawn();
             } else if (from >= basic && to >= basic) {
-              obj->disable(2);
+              obj->disable(1);
             }
           }
           return true;

@@ -17,15 +17,6 @@ extern bool g_left;
 extern bool g_down;
 extern bool g_right;
 
-// NPCs array {{{1
-const std::vector<std::vector<TankType>> NPCsArray = {
-    // Stage 01
-    {
-        basic, basic, basic, armor, power, fast, basic, basic, basic, basic,
-        fast,  basic, basic, basic, basic, fast, basic, basic, basic, basic,
-    }};
-// }}}1
-
 class Tank {
 private:
   TankType m_type{}; // 0,1,2,3 - Player,
@@ -132,6 +123,7 @@ public:
   int getY() const { return m_y; }
   void setY(int y) { m_y = y; }
   Dir getDir() const { return m_dir; }
+  int getHealth() const { return m_health; }
   int getImmunity() { return (m_immunity > 0) ? --m_immunity : m_immunity; }
   TankType getType() const { return m_type; }
   void setType(TankType type) {

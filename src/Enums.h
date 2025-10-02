@@ -24,3 +24,12 @@ enum TankType {
   power,
   armor,
 };
+
+enum UpgradeType {
+  helmet,
+  freeze,
+  shovel,
+  star,
+  grenade,
+  life,
+};

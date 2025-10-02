@@ -7,20 +7,26 @@
 #include "Hit.h"
 #include "Projectile.h"
 #include "Tank.h"
+#include "Upgrade.h"
 #include "Wall.h"
 #include <SFML/Graphics.hpp>
+#include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <iostream>
 #include <memory>
 #include <random>
+#include <string>
 #include <vector>
 
 // globals {{{1
-constexpr int g_maxX{208};
-constexpr int g_maxY{208};
-constexpr int g_refreshRate{30};
+const int g_maxX{208}; // Battlefield size, horizontal
+const int g_maxY{208}; // Battlefield size, vertical
+const int g_ofX{4};    // Frame size, horizontal
+const int g_ofY{4};    // Frame size, vertical
+const int g_info{32};  // Info panel width
+const int g_refreshRate{30};
 int g_stage{0};
 int g_score{0};
 bool g_gameOver{false};
@@ -29,42 +35,42 @@ bool g_left{false};
 bool g_down{false};
 bool g_right{false};
 
-// events {{{1
-void handleUpKeyPressed(Tank *tank) {
+// Event handlers {{{1
+static void handleUpKeyPressed(Tank *tank) {
   if (!g_gameOver) {
     tank->setDir(up);
     g_up = true;
     g_left = g_right = g_down = false;
   }
 }
-void handleLeftKeyPressed(Tank *tank) {
+static void handleLeftKeyPressed(Tank *tank) {
   if (!g_gameOver) {
     tank->setDir(left);
     g_left = true;
     g_up = g_right = g_down = false;
   }
 }
-void handleDownKeyPressed(Tank *tank) {
+static void handleDownKeyPressed(Tank *tank) {
   if (!g_gameOver) {
     tank->setDir(down);
     g_down = true;
     g_up = g_left = g_right = false;
   }
 }
-void handleRightKeyPressed(Tank *tank) {
+static void handleRightKeyPressed(Tank *tank) {
   if (!g_gameOver) {
     tank->setDir(right);
     g_right = true;
     g_up = g_left = g_down = false;
   }
 }
-void handleUpKeyReleased() { g_up = false; }
-void handleLeftKeyReleased() { g_left = false; }
-void handleDownKeyReleased() { g_down = false; }
-void handleRightKeyReleased() { g_right = false; }
-void handleSpaceKeyPressed(
-    std::shared_ptr<Tank> tank,
-    std::vector<std::unique_ptr<Projectile>> &Projectiles) {
+static void handleUpKeyReleased() { g_up = false; }
+static void handleLeftKeyReleased() { g_left = false; }
+static void handleDownKeyReleased() { g_down = false; }
+static void handleRightKeyReleased() { g_right = false; }
+static void
+handleSpaceKeyPressed(std::shared_ptr<Tank> tank,
+                      std::vector<std::unique_ptr<Projectile>> &Projectiles) {
   if (!g_gameOver && tank->canShoot()) {
     auto [x, y, dir, speed]{tank->getProjectile()};
     Projectiles.emplace_back(
@@ -77,12 +83,17 @@ void handleSpaceKeyPressed(
 int main() {
   // Initializations {{{2
   // Window {{{3
-  auto window{
-      sf::RenderWindow(sf::VideoMode({static_cast<unsigned int>(g_maxX),
-                                      static_cast<unsigned int>(g_maxY)}),
-                       "Battlecity")};
+  auto window{sf::RenderWindow(
+      sf::VideoMode({static_cast<unsigned int>(g_maxX) + g_ofX + g_info,
+                     static_cast<unsigned int>(g_maxY) + g_ofY + g_info}),
+      "Battlecity")};
   window.setFramerateLimit(g_refreshRate);
   window.setKeyRepeatEnabled(false);
+  sf::RectangleShape battlefield(
+      {static_cast<unsigned int>(g_maxX), static_cast<unsigned int>(g_maxY)});
+  battlefield.setPosition(
+      {static_cast<unsigned int>(g_ofX), static_cast<unsigned int>(g_ofY)});
+  battlefield.setFillColor(sf::Color::Black);
 
   // Sprites {{{3
   sf::Texture Textures;
@@ -105,6 +116,15 @@ int main() {
   // GameOver {{{3
   const auto gameOver{std::make_unique<GameOver>()};
   const auto gameOverSprite{gameOver->getSprite(Textures)};
+
+  // Upgrades {{{3
+  const std::vector<std::unique_ptr<sf::Sprite>> UpgradeSprites{
+      initUpgradeSprites(Textures)};
+  std::vector<std::unique_ptr<Upgrade>> Upgrades{};
+  for (int i{0}; i < 6; ++i) {
+    Upgrades.emplace_back(
+        std::make_unique<Upgrade>(static_cast<UpgradeType>(i)));
+  }
 
   // Tanks {{{3
   const std::vector<std::unique_ptr<sf::Sprite>> TankSprites{
@@ -139,8 +159,27 @@ int main() {
       initBangSprites(Textures)};
   std::vector<std::unique_ptr<Bang>> Bangs{};
 
-  // Handle events {{{2
+  // Score Board {{{3
+  sf::Sprite npcLife(Textures, sf::IntRect({321, 193}, {7, 7}));
+  sf::Sprite playerLife(Textures, sf::IntRect({377, 136}, {15, 16}));
+  std::vector<std::unique_ptr<sf::Sprite>> NumberSprites{};
+  for (int i{0}; i < 11; ++i) {
+    NumberSprites.emplace_back(std::make_unique<sf::Sprite>(
+        Textures,
+        sf::IntRect({329 + 8 * i - 40 * (i > 4), 184 + 8 * (i > 4)}, {7, 7})));
+  }
+
+  // Events {{{2
   const auto onClose{[&window](const sf::Event::Closed &) { window.close(); }};
+  const auto onResize{[&window](const sf::Event::Resized &) {
+    sf::Vector2u size = window.getSize();
+    if (size.y < size.x) {
+      size.x = size.y;
+    } else if (size.x < size.y) {
+      size.y = size.x;
+    }
+    window.setSize(size);
+  }};
 
   const auto onKeyPressed{[&window, &playerTank, &Projectiles](
                               const sf::Event::KeyPressed &keyPressed) {
@@ -172,13 +211,26 @@ int main() {
 
   // Main cycle {{{2
   while (window.isOpen()) {
-    window.handleEvents(onClose, onKeyPressed, onKeyReleased);
-    window.clear();
+    window.handleEvents(onClose, onKeyPressed, onKeyReleased, onResize);
+    window.clear(sf::Color(99, 99, 99));
+    window.draw(battlefield);
+
+    // Draw score board
+    for (int i{0}; i < 20 - nextNPC; ++i) {
+      npcLife.setPosition({static_cast<float>(g_ofX + g_maxX + 4 + (i % 2) * 8),
+                           static_cast<float>(g_ofY + 8 * (i / 2))});
+      window.draw(npcLife);
+    }
+    playerLife.setPosition({g_ofX + g_maxX + 4, g_ofY + 112});
+    window.draw(playerLife);
+    NumberSprites[playerTank->getHealth()]->setPosition(
+        {g_ofX + g_maxX + 12, g_ofY + 120});
+    window.draw(*NumberSprites[playerTank->getHealth()]);
 
     // Draw base {{{3
     const auto baseSprite{base->getSprite(BaseSprites)};
-    baseSprite->setPosition(
-        {static_cast<float>(base->getX()), static_cast<float>(base->getY())});
+    baseSprite->setPosition({g_ofX + static_cast<float>(base->getX()),
+                             g_ofY + static_cast<float>(base->getY())});
     window.draw(*baseSprite);
 
     // Draw projectiles {{{3
@@ -205,8 +257,9 @@ int main() {
           // Draw projectile
         } else {
           const auto sprite{Projectiles[i]->getSprite(ProjectileSprites)};
-          sprite->setPosition({static_cast<float>(Projectiles[i]->getX()),
-                               static_cast<float>(Projectiles[i]->getY())});
+          sprite->setPosition(
+              {g_ofX + static_cast<float>(Projectiles[i]->getX()),
+               g_ofY + static_cast<float>(Projectiles[i]->getY())});
           window.draw(*sprite);
           Projectiles[i]->move();
         }
@@ -218,14 +271,15 @@ int main() {
       if (tank->is_alive()) {
         const auto tankSprite{tank->getSprite(TankSprites)};
         const auto [dx, dy]{tank->getSize()};
-        tankSprite->setPosition({static_cast<float>(tank->getX()),
-                                 static_cast<float>(tank->getY())});
+        tankSprite->setPosition({g_ofX + static_cast<float>(tank->getX()),
+                                 g_ofY + static_cast<float>(tank->getY())});
         window.draw(*tankSprite);
         const int immunity{tank->getImmunity()};
         if (immunity > 0) {
           const auto immunitySprite{ImmunitySprites[immunity % 4 > 1].get()};
-          immunitySprite->setPosition({static_cast<float>(tank->getX() - 1),
-                                       static_cast<float>(tank->getY() - 1)});
+          immunitySprite->setPosition(
+              {g_ofX + static_cast<float>(tank->getX() - 1),
+               g_ofY + static_cast<float>(tank->getY() - 1)});
           window.draw(*immunitySprite);
         }
 
@@ -265,8 +319,8 @@ int main() {
     for (const auto &wall : Walls) {
       if (wall->is_alive()) {
         const auto wallSprite = wall->getSprite(WallSprites);
-        wallSprite->setPosition({static_cast<float>(wall->getX()),
-                                 static_cast<float>(wall->getY())});
+        wallSprite->setPosition({g_ofX + static_cast<float>(wall->getX()),
+                                 g_ofY + static_cast<float>(wall->getY())});
         window.draw(*wallSprite);
       }
     }
@@ -275,8 +329,8 @@ int main() {
     for (std::size_t i{0}; i < Hits.size(); ++i) {
       if (Hits[i]->is_alive()) {
         const auto sprite{Hits[i]->getSprite(HitSprites)};
-        sprite->setPosition({static_cast<float>(Hits[i]->getX()),
-                             static_cast<float>(Hits[i]->getY())});
+        sprite->setPosition({g_ofX + static_cast<float>(Hits[i]->getX()),
+                             g_ofY + static_cast<float>(Hits[i]->getY())});
         window.draw(*sprite);
         Hits[i]->anim();
         if (Hits[i]->getAnim() == 1) {
@@ -291,25 +345,26 @@ int main() {
       }
     }
 
-    // Draw base {{{3
-    if (g_gameOver) {
-      gameOverSprite->setPosition({static_cast<float>(gameOver->getX()),
-                                   static_cast<float>(gameOver->getY())});
-      window.draw(*gameOverSprite);
-      gameOver->anim();
-    }
-
     // Draw bangs {{{3
     for (std::size_t i{0}; i < Bangs.size(); ++i) {
       if (Bangs[i]->is_alive()) {
         const auto sprite{Bangs[i]->getSprite(BangSprites)};
-        sprite->setPosition({static_cast<float>(Bangs[i]->getX()),
-                             static_cast<float>(Bangs[i]->getY())});
+        sprite->setPosition({g_ofX + static_cast<float>(Bangs[i]->getX()),
+                             g_ofY + static_cast<float>(Bangs[i]->getY())});
         window.draw(*sprite);
         Bangs[i]->anim();
       } else {
         Bangs.erase(Bangs.begin() + i);
       }
+    }
+
+    // Draw GameOver {{{3
+    if (g_gameOver) {
+      gameOverSprite->setPosition(
+          {g_ofX + static_cast<float>(gameOver->getX()),
+           g_ofY + static_cast<float>(gameOver->getY())});
+      window.draw(*gameOverSprite);
+      gameOver->anim();
     }
 
     // Spawn Tanks {{{3
