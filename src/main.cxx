@@ -6,6 +6,7 @@
 #include "GameOver.h"
 #include "Hit.h"
 #include "Projectile.h"
+#include "Stages.h"
 #include "Tank.h"
 #include "Upgrade.h"
 #include "Wall.h"
@@ -14,6 +15,7 @@
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
+#include <algorithm>
 #include <cstdlib>
 #include <iostream>
 #include <memory>
@@ -30,6 +32,7 @@ const int g_info{36};  // Info panel width
 const int g_refreshRate{30};
 int g_stage{1};
 int g_score{0};
+int g_spawnDelay{5};
 bool g_gameOver{false};
 bool g_pause{false};
 bool g_up{false};
@@ -408,7 +411,7 @@ int main() {
           Tanks.emplace_back(
               std::make_unique<Tank>(NPCsArray[g_stage][nextNPC], spawnX, 0));
           ++nextNPC;
-          nextSpawn += 5 * g_refreshRate;
+          nextSpawn += g_spawnDelay * g_refreshRate;
         }
       }
       --nextSpawn;
@@ -432,6 +435,20 @@ int main() {
     for (std::size_t i{0}; i < Walls.size(); ++i) {
       if (!Walls[i]->is_alive()) {
         Walls.erase(Walls.begin() + i);
+      }
+    }
+
+    // Change stage {{{3
+    if (Tanks.size() == 1 && playerTank->is_alive() && Hits.empty() &&
+        Projectiles.empty()) {
+      ++g_stage;
+      nextSpawn = -10 * g_refreshRate;
+      nextNPC = 0;
+      playerTank->respawn();
+      Walls = initWalls();
+      if (g_stage == NPCsArray.size() - 1) {
+        g_stage = 1;
+        g_spawnDelay = std::max(1, g_spawnDelay - 1);
       }
     }
     //}}}3
