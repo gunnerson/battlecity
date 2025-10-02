@@ -439,17 +439,17 @@ int main() {
     }
 
     // Change stage {{{3
-    if (Tanks.size() == 1 && playerTank->is_alive() && Hits.empty() &&
-        Projectiles.empty()) {
+    if (nextNPC == 20 && Tanks.size() == 1 && playerTank->is_alive() &&
+        Hits.empty() && Projectiles.empty()) {
       ++g_stage;
+      if (g_stage == std::min(wallsArray.size(), NPCsArray.size())) {
+        g_stage = 1;
+        g_spawnDelay = std::max(1, g_spawnDelay - 4);
+      }
       nextSpawn = -10 * g_refreshRate;
       nextNPC = 0;
       playerTank->respawn();
       Walls = initWalls();
-      if (g_stage == NPCsArray.size() - 1) {
-        g_stage = 1;
-        g_spawnDelay = std::max(1, g_spawnDelay - 1);
-      }
     }
     //}}}3
 
