@@ -27,7 +27,7 @@ const int g_ofX{4};    // Frame size, horizontal
 const int g_ofY{4};    // Frame size, vertical
 const int g_info{32};  // Info panel width
 const int g_refreshRate{30};
-int g_stage{0};
+int g_stage{1};
 int g_score{0};
 bool g_gameOver{false};
 bool g_up{false};
@@ -162,6 +162,7 @@ int main() {
   // Score Board {{{3
   sf::Sprite npcLife(Textures, sf::IntRect({321, 193}, {7, 7}));
   sf::Sprite playerLife(Textures, sf::IntRect({377, 136}, {15, 16}));
+  sf::Sprite stage(Textures, sf::IntRect({376, 184}, {16, 15}));
   std::vector<std::unique_ptr<sf::Sprite>> NumberSprites{};
   for (int i{0}; i < 11; ++i) {
     NumberSprites.emplace_back(std::make_unique<sf::Sprite>(
@@ -221,11 +222,27 @@ int main() {
                            static_cast<float>(g_ofY + 8 * (i / 2))});
       window.draw(npcLife);
     }
+
     playerLife.setPosition({g_ofX + g_maxX + 4, g_ofY + 112});
     window.draw(playerLife);
+
     NumberSprites[playerTank->getHealth()]->setPosition(
         {g_ofX + g_maxX + 12, g_ofY + 120});
     window.draw(*NumberSprites[playerTank->getHealth()]);
+
+    stage.setPosition({g_ofX + g_maxX + 4, g_ofY + 160});
+    window.draw(stage);
+    if (g_stage < 10) {
+      NumberSprites[g_stage]->setPosition({g_ofX + g_maxX + 9, g_ofY + 176});
+      window.draw(*NumberSprites[g_stage]);
+    } else {
+      NumberSprites[g_stage / 10]->setPosition(
+          {g_ofX + g_maxX + 5, g_ofY + 176});
+      NumberSprites[g_stage % 10]->setPosition(
+          {g_ofX + g_maxX + 13, g_ofY + 176});
+      window.draw(*NumberSprites[g_stage / 10]);
+      window.draw(*NumberSprites[g_stage % 10]);
+    }
 
     // Draw base {{{3
     const auto baseSprite{base->getSprite(BaseSprites)};

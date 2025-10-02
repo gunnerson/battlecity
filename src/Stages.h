@@ -1,6 +1,7 @@
 #pragma once
 #include "Enums.h"
 #include <vector>
+
 // Walls {{{1
 //
 // Textures:
@@ -38,7 +39,9 @@
 //
 // {Pos X, Pos Y, Texture N}
 const std::vector<std::vector<std::vector<int>>> wallsArray = {
-    // Stage 01
+    {}, // For number consistency
+
+    // Stage 1
     {
         {16, 16, 0},
         {48, 16, 0},
@@ -127,9 +130,12 @@ const std::vector<std::vector<std::vector<int>>> wallsArray = {
         {88, 200, 3},
         {112, 200, 3},
     }};
+
 // NPCs array {{{1
 const std::vector<std::vector<TankType>> NPCsArray = {
-    // Stage 01
+    {}, // For number consistency
+
+    // Stage 1
     {
         basic, basic, basic, armor, power, fast, basic, basic, basic, basic,
         fast,  basic, basic, basic, basic, fast, basic, basic, basic, basic,
