@@ -138,5 +138,5 @@ const std::vector<std::vector<TankType>> NPCsArray{
      // Stage 1
      {
          basic, basic, basic, basic, basic, basic, basic, basic, basic, basic,
-         fast,  basic, basic, basic, basic, fast,  basic, basic, basic, basic,
+         fast,  basic, basic, basic, basic, basic, basic, fast,  basic, basic,
      }}};
