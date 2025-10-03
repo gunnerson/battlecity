@@ -260,7 +260,8 @@ int main() {
           // Check if projectile hit a wall
           if (Projectiles[i]->checkCollision(Walls)) {
             const auto [x, y]{Projectiles[i]->getHitPos()};
-            Hits.emplace_back(std::make_unique<Hit>(x, y));
+            Hits.emplace_back(
+                std::make_unique<Hit>(x, y, Projectiles[i]->isAP()));
             // Check if projectile hit another projectile
           } else if (Projectiles[i]->checkCollision(Projectiles)) {
             // Check if projectile hit a tank
@@ -363,7 +364,7 @@ int main() {
           if (Hits[i]->getAnim() == 1) {
             for (const auto &wall : Walls) {
               if (Hits[i]->checkBlast(wall->getX(), wall->getY())) {
-                wall->kill();
+                wall->kill(Hits[i]->isAP());
               }
             }
           }

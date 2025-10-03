@@ -25,8 +25,8 @@ public:
   std::tuple<int, int> getSize() const { return {4, 4}; }
 
   bool isAlive() const { return m_alive; }
-  void kill() {
-    if (m_texture < 2)
+  void kill(bool ap = false) {
+    if (m_texture < 2 || ap)
       m_alive = false;
   }
 

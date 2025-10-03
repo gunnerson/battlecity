@@ -9,13 +9,15 @@ private:
   int m_x{};
   int m_y{};
   int m_anim{0};
+  bool m_ap{}; // Armor piercing
 
 public:
-  Hit(int x, int y) : m_x{x}, m_y{y} {}
+  Hit(int x, int y, bool ap = false) : m_x{x}, m_y{y}, m_ap{ap} {}
 
   int getX() const { return m_x; }
   int getY() const { return m_y; }
   int getAnim() const { return m_anim; }
+  int isAP() const { return m_ap; }
 
   bool isAlive() const { return m_anim < constants::refreshRate * 3 / 10 - 1; }
   void anim() { ++m_anim; }

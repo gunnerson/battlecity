@@ -36,6 +36,7 @@ public:
   }
   bool isAlive() const { return m_alive; }
   void kill() { m_alive = false; }
+  bool isAP() const { return m_tank->getType() == general; }
 
   sf::Sprite *
   getSprite(const std::vector<std::unique_ptr<sf::Sprite>> &Sprites) const {
