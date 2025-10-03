@@ -15,6 +15,9 @@ inline constexpr int friendlyFire{1};
 // Time in seconds upgrade is available before it disappears
 inline constexpr int upgradeLifetime{15};
 
+// "Shovel" upgrade duration, time in seconds
+inline constexpr int upgradeShovel{15};
+
 // "Helmet" upgrade duration, time in seconds
 inline constexpr int upgradeHelmet{10};
 
@@ -23,6 +26,9 @@ inline constexpr int upgradeFreeze{10};
 
 // Time in seconds - how often NPC can turn
 inline constexpr int npcTurnFrequency{2};
+//
+// Time in seconds - how often NPCs can spawn
+inline constexpr int spawnDelay{5};
 
 // How often NPCs shoot, 1s / n
 inline constexpr int npcShootFrequency{3};

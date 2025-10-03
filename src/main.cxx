@@ -28,9 +28,10 @@
 // globals {{{1
 bool g_gameOver{false};
 bool g_pause{false};
-int g_stage{0};
+int g_stage{1};
 int g_score{0};
-int g_spawnDelay{5};
+int g_spawnDelay{constants::spawnDelay}; // Initial delay before NPC spawns
+int g_shovel{0};                         // Shovel upgrade effect duration
 bool g_up{false};
 bool g_left{false};
 bool g_down{false};
@@ -248,7 +249,7 @@ int main() {
     // Draw projectiles {{{3
     if (!g_pause) {
       int rngUpgradeType{rng6(mt)};
-      rngUpgradeType = 3;
+      rngUpgradeType = 2;
       int rngUpgradeSpot{rng8(mt)};
       for (std::size_t i{0}; i < Projectiles.size(); ++i) {
         // Check if projectile hit the base
@@ -303,7 +304,7 @@ int main() {
           if (tank->getType() <= general) {
             // Player tank
             if (!g_gameOver) {
-              tank->checkUpgrades(Tanks, Hits, Upgrades);
+              tank->checkUpgrades(Tanks, Hits, Walls, Upgrades);
               if (tank->isDisabled())
                 tank->repair();
               else if (g_up || g_left || g_down || g_right) {
@@ -445,26 +446,49 @@ int main() {
       --nextSpawn;
     }
 
-    // Clean tanks {{{3
-    for (std::size_t i{0}; i < Tanks.size(); ++i) {
-      if (!Tanks[i]->isAlive()) {
-        Tanks.erase(Tanks.begin() + i);
+    // Handel base armor {{{3
+    if (g_shovel) {
+      --g_shovel;
+      if (!g_shovel) {
+        Walls.erase(std::remove_if(Walls.begin(), Walls.end(),
+                                   [](const std::unique_ptr<Wall> &obj) {
+                                     return obj->isBase();
+                                   }),
+                    Walls.end());
+        for (std::size_t i{0}; i < WallStages[0].size(); ++i) {
+          Walls.emplace_back(std::make_unique<Wall>(
+              WallStages[0][i][0], WallStages[0][i][1], 0, false));
+          Walls.emplace_back(std::make_unique<Wall>(
+              WallStages[0][i][0] + 4, WallStages[0][i][1], 1, false));
+          Walls.emplace_back(std::make_unique<Wall>(
+              WallStages[0][i][0], WallStages[0][i][1] + 4, 1, false));
+          Walls.emplace_back(std::make_unique<Wall>(
+              WallStages[0][i][0] + 4, WallStages[0][i][1] + 4, 0, false));
+        }
       }
     }
+
+    // Clean tanks {{{3
+    Tanks.erase(std::remove_if(Tanks.begin(), Tanks.end(),
+                               [](const std::shared_ptr<Tank> &obj) {
+                                 return !obj->isAlive();
+                               }),
+                Tanks.end());
 
     // Clean projectiles {{{3
-    for (std::size_t i{0}; i < Projectiles.size(); ++i) {
-      if (!Projectiles[i]->isAlive()) {
-        Projectiles.erase(Projectiles.begin() + i);
-      }
-    }
+    Projectiles.erase(
+        std::remove_if(Projectiles.begin(), Projectiles.end(),
+                       [](const std::unique_ptr<Projectile> &obj) {
+                         return !obj->isAlive();
+                       }),
+        Projectiles.end());
 
-    // Clean brick walls {{{3
-    for (std::size_t i{0}; i < Walls.size(); ++i) {
-      if (!Walls[i]->isAlive()) {
-        Walls.erase(Walls.begin() + i);
-      }
-    }
+    // Clean walls {{{3
+    Walls.erase(std::remove_if(Walls.begin(), Walls.end(),
+                               [](const std::unique_ptr<Wall> &obj) {
+                                 return !obj->isAlive();
+                               }),
+                Walls.end());
 
     // Change stage {{{3
     if (!g_gameOver && nextNPC == 20 && Tanks.size() == 1 && Hits.empty() &&
@@ -485,4 +509,3 @@ int main() {
   }
   // }}}2
 }
-// }}}1

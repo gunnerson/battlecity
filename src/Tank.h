@@ -9,11 +9,14 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <algorithm>
 #include <cstdlib>
+#include <iostream>
 #include <iterator>
 #include <memory>
 #include <vector>
 
 extern int g_score;
+extern int g_shovel;
+// }}}1
 
 class Tank {
 private:
@@ -64,6 +67,7 @@ public:
       m_color = gray;
       m_dir = down;
       m_x += 1;
+      m_shots = 0;
       break;
     case fast:
       m_speed = 3;
@@ -72,6 +76,7 @@ public:
       m_color = gray;
       m_dir = down;
       m_x += 1;
+      m_shots = 0;
       break;
     case power:
       m_speed = 2;
@@ -208,7 +213,6 @@ public:
       }
     }
   }
-  // }}}1
 
   // setDir {{{1
   void setDir(Dir dir) {
@@ -234,7 +238,6 @@ public:
     }
     m_dir = dir;
   }
-  // }}}1
 
   // checkOutOfBounds {{{1
   bool checkOutOfBounds() {
@@ -299,11 +302,11 @@ public:
     }
     return outOfScreen;
   }
-  // }}}1
 
   // checkUpgrades {{{1
   void checkUpgrades(const std::vector<std::shared_ptr<Tank>> &Tanks,
                      std::vector<std::unique_ptr<Hit>> &Hits,
+                     std::vector<std::unique_ptr<Wall>> &Walls,
                      const std::vector<std::unique_ptr<Upgrade>> &Upgrades) {
     for (std::size_t i{0}; i < Upgrades.size(); ++i) {
       if (Upgrades[i]->isAlive()) {
@@ -312,6 +315,7 @@ public:
         const auto [dx, dy]{getSize()};
         if ((m_x < x + 16) && (x < m_x + dx) && (m_y < y + 16) &&
             (y < m_y + dy)) {
+          int c{0};
           switch (i) {
 
             // helmet
@@ -329,6 +333,23 @@ public:
 
             // shovel
           case 2:
+            g_shovel = constants::upgradeShovel * constants::refreshRate;
+            Walls.erase(std::remove_if(Walls.begin(), Walls.end(),
+                                       [](const std::unique_ptr<Wall> &obj) {
+                                         return obj->isBase();
+                                       }),
+                        Walls.end());
+            for (std::size_t i{0}; i < WallStages[0].size(); ++i) {
+              Walls.emplace_back(std::make_unique<Wall>(
+                  WallStages[0][i][0], WallStages[0][i][1], 2, true));
+              Walls.emplace_back(std::make_unique<Wall>(
+                  WallStages[0][i][0] + 4, WallStages[0][i][1], 3, true));
+              Walls.emplace_back(std::make_unique<Wall>(
+                  WallStages[0][i][0], WallStages[0][i][1] + 4, 4, true));
+              Walls.emplace_back(std::make_unique<Wall>(
+                  WallStages[0][i][0] + 4, WallStages[0][i][1] + 4, 5, true));
+            }
+
             break;
 
             // star
@@ -357,7 +378,6 @@ public:
       }
     }
   }
-  // }}}1
 
   // checkCollision {{{1
   template <typename T> bool checkCollision(const std::vector<T> &objects) {
@@ -434,7 +454,6 @@ public:
     }
     return collisionDetected;
   }
-  // }}}1
 
   // updatePos {{{1
   void updatePos(const std::vector<std::unique_ptr<Wall>> &Walls,
@@ -465,7 +484,6 @@ public:
     if (m_anim > 5 * constants::refreshRate)
       m_upgrade = false;
   }
-  // }}}1
 
   // getProjectile {{{1
   // Get speed and coordinates for new projectile
@@ -506,7 +524,6 @@ public:
     }
     return {};
   }
-  // }}}1
 
   // onSpawn {{{1
   // Check if tank occupies spawn location
@@ -521,7 +538,6 @@ public:
     }
     return false;
   }
-  // }}}1
 
   // updateDir {{{1
   // Decide whether to turn
@@ -540,7 +556,6 @@ public:
       --m_nextTurn;
     }
   }
-  // }}}1
 };
 
 // initTankSprites {{{1
