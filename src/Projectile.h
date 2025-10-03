@@ -1,4 +1,5 @@
 #pragma once
+#include "Constants.h"
 #include "Enums.h"
 #include "Hit.h"
 #include "Tank.h"
@@ -9,9 +10,6 @@
 #include <tuple>
 #include <vector>
 
-extern const int g_refreshRate;
-extern const int g_maxX;
-extern const int g_maxY;
 extern int g_score;
 
 class Projectile {
@@ -59,7 +57,7 @@ public:
       m_x += m_speed;
       break;
     }
-    if (m_x < 0 || m_y < 0 || m_x >= g_maxX || m_y >= g_maxY)
+    if (m_x < 0 || m_y < 0 || m_x >= constants::maxX || m_y >= constants::maxY)
       m_alive = false;
   }
 
@@ -140,7 +138,7 @@ public:
               obj->hit();
               obj->respawn();
             } else if (from >= basic && to >= basic) {
-              obj->disable(1);
+              obj->disable(constants::friendlyFire);
             }
           }
           return true;

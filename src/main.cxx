@@ -2,6 +2,7 @@
 // imports {{{1
 #include "Bang.h"
 #include "Base.h"
+#include "Constants.h"
 #include "Enums.h"
 #include "GameOver.h"
 #include "Hit.h"
@@ -25,17 +26,11 @@
 #include <vector>
 
 // globals {{{1
-const int g_maxX{208}; // Battlefield size, horizontal
-const int g_maxY{208}; // Battlefield size, vertical
-const int g_ofX{4};    // Frame size, horizontal
-const int g_ofY{20};   // Frame size, vertical
-const int g_info{36};  // Info panel width
-const int g_refreshRate{30};
+bool g_gameOver{false};
+bool g_pause{false};
 int g_stage{0};
 int g_score{0};
 int g_spawnDelay{5};
-bool g_gameOver{false};
-bool g_pause{false};
 bool g_up{false};
 bool g_left{false};
 bool g_down{false};
@@ -46,15 +41,17 @@ int main() {
   // Initializations {{{2
   // Window {{{3
   auto window{sf::RenderWindow(
-      sf::VideoMode({static_cast<unsigned int>(g_maxX + g_ofX + g_info),
-                     static_cast<unsigned int>(g_maxY + g_ofY * 2)}),
+      sf::VideoMode(
+          {static_cast<unsigned int>(constants::maxX + constants::ofX +
+                                     constants::info),
+           static_cast<unsigned int>(constants::maxY + constants::ofY * 2)}),
       "Battlecity", sf::Style::Default, sf::State::Windowed)};
-  window.setFramerateLimit(g_refreshRate);
+  window.setFramerateLimit(constants::refreshRate);
   window.setKeyRepeatEnabled(false);
-  sf::RectangleShape battlefield(
-      {static_cast<unsigned int>(g_maxX), static_cast<unsigned int>(g_maxY)});
-  battlefield.setPosition(
-      {static_cast<unsigned int>(g_ofX), static_cast<unsigned int>(g_ofY)});
+  sf::RectangleShape battlefield({static_cast<unsigned int>(constants::maxX),
+                                  static_cast<unsigned int>(constants::maxY)});
+  battlefield.setPosition({static_cast<unsigned int>(constants::ofX),
+                           static_cast<unsigned int>(constants::ofY)});
   battlefield.setFillColor(sf::Color::Black);
 
   // Sprites {{{3
@@ -82,7 +79,7 @@ int main() {
 
   // Pause {{{3
   sf::Sprite pause(Textures, sf::IntRect({289, 176}, {39, 7}));
-  pause.setPosition({g_ofX + 84, g_ofY + 105});
+  pause.setPosition({constants::ofX + 84, constants::ofY + 105});
 
   // Upgrades {{{3
   const std::vector<std::unique_ptr<sf::Sprite>> UpgradeSprites{
@@ -99,7 +96,7 @@ int main() {
   const std::vector<std::unique_ptr<sf::Sprite>> ImmunitySprites{
       initImmunitySprites(Textures)};
   std::vector<std::shared_ptr<Tank>> Tanks{};
-  int nextSpawn{-10 * g_refreshRate};
+  int nextSpawn{-10 * constants::refreshRate};
   int nextNPC{0};
 
   // Player tank {{{3
@@ -204,47 +201,54 @@ int main() {
 
     // Draw score board {{{3
     for (int i{0}; i < 20 - nextNPC; ++i) {
-      npcLife.setPosition({static_cast<float>(g_ofX + g_maxX + 8 + (i % 2) * 8),
-                           static_cast<float>(g_ofY + 8 * (i / 2))});
+      npcLife.setPosition({static_cast<float>(constants::ofX + constants::maxX +
+                                              8 + (i % 2) * 8),
+                           static_cast<float>(constants::ofY + 8 * (i / 2))});
       window.draw(npcLife);
     }
 
-    playerLife.setPosition({g_ofX + g_maxX + 8, g_ofY + 112});
+    playerLife.setPosition(
+        {constants::ofX + constants::maxX + 8, constants::ofY + 112});
     window.draw(playerLife);
 
     NumberSprites[playerTank->getHealth()]->setPosition(
-        {g_ofX + g_maxX + 16, g_ofY + 120});
+        {constants::ofX + constants::maxX + 16, constants::ofY + 120});
     window.draw(*NumberSprites[playerTank->getHealth()]);
 
-    stage.setPosition({g_ofX + g_maxX + 8, g_ofY + 160});
+    stage.setPosition(
+        {constants::ofX + constants::maxX + 8, constants::ofY + 160});
     window.draw(stage);
     if (g_stage < 10) {
-      NumberSprites[g_stage]->setPosition({g_ofX + g_maxX + 13, g_ofY + 176});
+      NumberSprites[g_stage]->setPosition(
+          {constants::ofX + constants::maxX + 13, constants::ofY + 176});
       window.draw(*NumberSprites[g_stage]);
     } else {
       NumberSprites[g_stage / 10]->setPosition(
-          {g_ofX + g_maxX + 9, g_ofY + 176});
+          {constants::ofX + constants::maxX + 9, constants::ofY + 176});
       NumberSprites[g_stage % 10]->setPosition(
-          {g_ofX + g_maxX + 17, g_ofY + 176});
+          {constants::ofX + constants::maxX + 17, constants::ofY + 176});
       window.draw(*NumberSprites[g_stage / 10]);
       window.draw(*NumberSprites[g_stage % 10]);
     }
     auto const score_str{std::to_string(g_score)};
     for (int i{0}; i < score_str.length(); ++i) {
       NumberSprites[score_str[i] - '0']->setPosition(
-          {static_cast<float>(g_ofX + 8 + 8 * i), g_ofY + g_maxY + 8});
+          {static_cast<float>(constants::ofX + 8 + 8 * i),
+           constants::ofY + constants::maxY + 8});
       window.draw(*NumberSprites[score_str[i] - '0']);
     }
 
     // Draw base {{{3
     const auto baseSprite{base->getSprite(BaseSprites)};
-    baseSprite->setPosition({g_ofX + static_cast<float>(base->getX()),
-                             g_ofY + static_cast<float>(base->getY())});
+    baseSprite->setPosition(
+        {constants::ofX + static_cast<float>(base->getX()),
+         constants::ofY + static_cast<float>(base->getY())});
     window.draw(*baseSprite);
 
     // Draw projectiles {{{3
     if (!g_pause) {
       int rngUpgradeType{rng6(mt)};
+      rngUpgradeType = 3;
       int rngUpgradeSpot{rng8(mt)};
       for (std::size_t i{0}; i < Projectiles.size(); ++i) {
         // Check if projectile hit the base
@@ -272,8 +276,8 @@ int main() {
           } else {
             const auto sprite{Projectiles[i]->getSprite(ProjectileSprites)};
             sprite->setPosition(
-                {g_ofX + static_cast<float>(Projectiles[i]->getX()),
-                 g_ofY + static_cast<float>(Projectiles[i]->getY())});
+                {constants::ofX + static_cast<float>(Projectiles[i]->getX()),
+                 constants::ofY + static_cast<float>(Projectiles[i]->getY())});
             window.draw(*sprite);
             Projectiles[i]->move();
           }
@@ -290,8 +294,8 @@ int main() {
           if (immunity > 0) {
             const auto immunitySprite{ImmunitySprites[immunity % 4 > 1].get()};
             immunitySprite->setPosition(
-                {static_cast<float>(g_ofX + tank->getX() - 1),
-                 static_cast<float>(g_ofY + tank->getY() - 1)});
+                {static_cast<float>(constants::ofX + tank->getX() - 1),
+                 static_cast<float>(constants::ofY + tank->getY() - 1)});
             window.draw(*immunitySprite);
           }
 
@@ -327,8 +331,9 @@ int main() {
           }
           const auto tankSprite{tank->getSprite(TankSprites)};
           const auto [dx, dy]{tank->getSize()};
-          tankSprite->setPosition({static_cast<float>(g_ofX + tank->getX()),
-                                   static_cast<float>(g_ofY + tank->getY())});
+          tankSprite->setPosition(
+              {static_cast<float>(constants::ofX + tank->getX()),
+               static_cast<float>(constants::ofY + tank->getY())});
           window.draw(*tankSprite);
         }
       }
@@ -338,8 +343,9 @@ int main() {
     for (const auto &wall : Walls) {
       if (wall->isAlive()) {
         const auto wallSprite = wall->getSprite(WallSprites);
-        wallSprite->setPosition({static_cast<float>(g_ofX + wall->getX()),
-                                 static_cast<float>(g_ofY + wall->getY())});
+        wallSprite->setPosition(
+            {static_cast<float>(constants::ofX + wall->getX()),
+             static_cast<float>(constants::ofY + wall->getY())});
         window.draw(*wallSprite);
       }
     }
@@ -349,8 +355,9 @@ int main() {
       for (std::size_t i{0}; i < Hits.size(); ++i) {
         if (Hits[i]->isAlive()) {
           const auto sprite{Hits[i]->getSprite(HitSprites)};
-          sprite->setPosition({static_cast<float>(g_ofX + Hits[i]->getX()),
-                               static_cast<float>(g_ofY + Hits[i]->getY())});
+          sprite->setPosition(
+              {static_cast<float>(constants::ofX + Hits[i]->getX()),
+               static_cast<float>(constants::ofY + Hits[i]->getY())});
           window.draw(*sprite);
           Hits[i]->anim();
           if (Hits[i]->getAnim() == 1) {
@@ -371,8 +378,9 @@ int main() {
       for (std::size_t i{0}; i < Bangs.size(); ++i) {
         if (Bangs[i]->isAlive()) {
           const auto sprite{Bangs[i]->getSprite(BangSprites)};
-          sprite->setPosition({static_cast<float>(g_ofX + Bangs[i]->getX()),
-                               static_cast<float>(g_ofY + Bangs[i]->getY())});
+          sprite->setPosition(
+              {static_cast<float>(constants::ofX + Bangs[i]->getX()),
+               static_cast<float>(constants::ofY + Bangs[i]->getY())});
           window.draw(*sprite);
           Bangs[i]->anim();
         } else {
@@ -394,8 +402,8 @@ int main() {
     // Draw gameover {{{3
     if (g_gameOver) {
       gameOverSprite->setPosition(
-          {static_cast<float>(g_ofX + gameOver->getX()),
-           static_cast<float>(g_ofY + gameOver->getY())});
+          {static_cast<float>(constants::ofX + gameOver->getX()),
+           static_cast<float>(constants::ofY + gameOver->getY())});
       window.draw(*gameOverSprite);
       if (!g_pause)
         gameOver->anim();
@@ -430,7 +438,7 @@ int main() {
               NpcStages[g_stage][nextNPC], spawnX, 0,
               (nextNPC == 3 || nextNPC == 10 || nextNPC == 17)));
           ++nextNPC;
-          nextSpawn += g_spawnDelay * g_refreshRate;
+          nextSpawn += g_spawnDelay * constants::refreshRate;
         }
       }
       --nextSpawn;
@@ -465,7 +473,7 @@ int main() {
         g_stage = 1;
         g_spawnDelay = std::max(1, g_spawnDelay - 1);
       }
-      nextSpawn = -10 * g_refreshRate;
+      nextSpawn = -10 * constants::refreshRate;
       nextNPC = 0;
       playerTank->respawn();
       Walls = initWalls();

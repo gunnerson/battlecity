@@ -1,5 +1,5 @@
 #pragma once
-#include "Bang.h"
+#include "Constants.h"
 #include "Enums.h"
 #include "Stages.h"
 #include "Wall.h"
@@ -8,9 +8,6 @@
 #include <memory>
 #include <vector>
 
-extern const int g_refreshRate;
-extern const int g_ofX;
-extern const int g_ofY;
 extern int g_stage;
 
 class Upgrade {
@@ -35,9 +32,9 @@ public:
   void setAlive(int spot) {
     m_x = UpgradeStages[g_stage][spot][0];
     m_y = UpgradeStages[g_stage][spot][1];
-    m_sprite->setPosition(
-        {static_cast<float>(g_ofX + m_x), static_cast<float>(g_ofY + m_y)});
-    m_alive += 15 * g_refreshRate;
+    m_sprite->setPosition({static_cast<float>(constants::ofX + m_x),
+                           static_cast<float>(constants::ofY + m_y)});
+    m_alive += constants::upgradeLifetime * constants::refreshRate;
   }
   void tick() { --m_alive; }
 

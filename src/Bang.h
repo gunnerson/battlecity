@@ -1,9 +1,8 @@
 #pragma once
+#include "Constants.h"
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <vector>
-
-extern const int g_refreshRate;
 
 class Bang {
 private:
@@ -18,12 +17,12 @@ public:
   int getY() const { return m_y; }
   int getAnim() const { return m_anim; }
 
-  bool isAlive() const { return m_anim < g_refreshRate * 3 / 5 - 1; }
+  bool isAlive() const { return m_anim < constants::refreshRate * 3 / 5 - 1; }
   void anim() { ++m_anim; }
 
   sf::Sprite *
   getSprite(const std::vector<std::unique_ptr<sf::Sprite>> &Sprites) const {
-    return Sprites[m_anim * 5 / g_refreshRate].get();
+    return Sprites[m_anim * 5 / constants::refreshRate].get();
   };
 };
 

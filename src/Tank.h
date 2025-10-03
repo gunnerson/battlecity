@@ -1,5 +1,6 @@
 // imports and globals {{{1
 #pragma once
+#include "Constants.h"
 #include "Enums.h"
 #include "Hit.h"
 #include "Upgrade.h"
@@ -8,19 +9,11 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <algorithm>
 #include <cstdlib>
-#include <iostream>
 #include <iterator>
 #include <memory>
 #include <vector>
 
-extern const int g_maxX;
-extern const int g_maxY;
-extern const int g_refreshRate;
 extern int g_score;
-extern bool g_up;
-extern bool g_left;
-extern bool g_down;
-extern bool g_right;
 
 class Tank {
 private:
@@ -39,9 +32,10 @@ private:
   int m_reload{0};   // Reloading
   int m_fire{1};     // Fire rate
   int m_shots{1};    // Shots left
-  int m_nextTurn{g_refreshRate * 2};      // Time to next turn
-  int m_disable{g_refreshRate};           // Prevents from moving
-  int m_immunity{g_refreshRate * 2};      // Immune to hits
+  int m_nextTurn{constants::refreshRate *
+                 constants::npcTurnFrequency}; // Time to next turn
+  int m_disable{constants::refreshRate};       // Prevents from moving
+  int m_immunity{constants::refreshRate * 2};  // Immune to hits
   std::vector<int> m_dirProb{0, 0, 0, 0}; // Array of probabilities for turning
   std::vector<int> m_dirRestrict{0, 1, 1, 1}; // Array of turn restrictions
 
@@ -115,7 +109,7 @@ public:
 
   int getImmunity() { return (m_immunity > 0) ? --m_immunity : m_immunity; }
   bool isImmune() const { return m_immunity > 0; }
-  void setImmunity(int time) { m_immunity = time * g_refreshRate; }
+  void setImmunity(int time) { m_immunity = time * constants::refreshRate; }
 
   std::tuple<int, int> getSize() const {
     if (m_dir % 2)
@@ -128,7 +122,7 @@ public:
   void addShot() { ++m_shots; }
   void shoot() {
     --m_shots;
-    m_reload = g_refreshRate / 3;
+    m_reload = constants::refreshRate / constants::npcShootFrequency;
   }
   bool canShoot() { return m_shots > 0 && m_reload <= 0 && m_disable <= 0; }
   void reload() {
@@ -145,7 +139,7 @@ public:
       m_color = gray;
   }
 
-  void disable(int time) { m_disable += g_refreshRate * time; }
+  void disable(int time) { m_disable += constants::refreshRate * time; }
   bool isDisabled() const { return m_disable > 0; }
   void repair() { --m_disable; }
 
@@ -153,8 +147,8 @@ public:
     m_x = 64;
     m_y = 208 - m_length;
     m_dir = up;
-    m_disable = g_refreshRate;
-    m_immunity = g_refreshRate * 2;
+    m_disable = constants::refreshRate;
+    m_immunity = constants::refreshRate * 2;
   }
 
   sf::Sprite *
@@ -184,6 +178,7 @@ public:
         ++m_shots;
         m_length = 15;
       case general:
+        m_fire = 2;
         m_width = 14;
         switch (m_dir) {
         case up:
@@ -258,10 +253,10 @@ public:
       }
     } else if (m_dir == down) {
       // Check out of screen
-      if (m_y + m_length + m_speed >= g_maxY) {
-        if (m_y + m_length < g_maxY)
+      if (m_y + m_length + m_speed >= constants::maxY) {
+        if (m_y + m_length < constants::maxY)
           ++m_anim;
-        m_y = g_maxY - m_length;
+        m_y = constants::maxY - m_length;
         m_dirRestrict[down] = 0;
         outOfScreen = true;
         // Check base
@@ -274,10 +269,10 @@ public:
       }
     } else if (m_dir == right) {
       // Check out of screen
-      if (m_x + m_length + m_speed >= g_maxX) {
-        if (m_x + m_length < g_maxX)
+      if (m_x + m_length + m_speed >= constants::maxX) {
+        if (m_x + m_length < constants::maxX)
           ++m_anim;
-        m_x = g_maxX - m_length;
+        m_x = constants::maxX - m_length;
         m_dirRestrict[right] = 0;
         outOfScreen = true;
         // Check base
@@ -307,14 +302,14 @@ public:
 
             // helmet
           case 0:
-            setImmunity(10);
+            setImmunity(constants::upgradeHelmet);
             break;
 
             // freeze
           case 1:
             for (const auto &tank : Tanks) {
               if (tank->getType() >= basic)
-                tank->disable(10);
+                tank->disable(constants::upgradeFreeze);
             }
             break;
 
@@ -451,7 +446,7 @@ public:
         m_dirRestrict = {1, 1, 1, 1};
       }
     }
-    if (m_anim > 5 * g_refreshRate)
+    if (m_anim > 5 * constants::refreshRate)
       m_upgrade = false;
   }
   // }}}1
@@ -520,7 +515,8 @@ public:
       m_dir = static_cast<Dir>(
           std::distance(m_dirProb.begin(),
                         std::max_element(m_dirProb.begin(), m_dirProb.end())));
-      m_nextTurn = g_refreshRate * 3 / m_speed;
+      m_nextTurn =
+          constants::refreshRate * constants::npcTurnFrequency / m_speed;
     } else {
       --m_nextTurn;
     }
