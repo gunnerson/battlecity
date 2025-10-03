@@ -1,23 +1,35 @@
 #pragma once
+#include "Bang.h"
 #include "Enums.h"
+#include "Stages.h"
+#include "Wall.h"
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <memory>
 #include <vector>
 
+extern const int g_refreshRate;
+extern int g_stage;
+
 class Upgrade {
 private:
+  UpgradeType m_type{};
   int m_x{};
   int m_y{};
-  UpgradeType m_type{};
-  bool m_alive{true};
+  int m_alive{0};
 
 public:
   Upgrade(UpgradeType type) : m_type(type) {};
   int getX() const { return m_x; }
   int getY() const { return m_y; }
-  bool is_alive() const { return m_alive; }
-  void kill() { m_alive = false; }
+  bool is_alive() const { return m_alive > 0; }
+  void kill() { m_alive = 0; }
+  void setAlive(int spot) {
+    m_x = UpgradeStages[g_stage][spot][0];
+    m_y = UpgradeStages[g_stage][spot][1];
+    m_alive += 15 * g_refreshRate;
+  }
+  void tick() { --m_alive; }
 
   sf::Sprite *
   getSprite(const std::vector<std::unique_ptr<sf::Sprite>> &Sprites) const {

@@ -115,6 +115,7 @@ public:
 
   bool is_alive() const { return m_health > 0; }
   bool is_immune() const { return m_immunity > 0; }
+  bool is_upgrade() const { return m_upgrade; }
 
   void addShot() { ++m_shots; }
   void shoot() {

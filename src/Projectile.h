@@ -2,9 +2,11 @@
 #include "Enums.h"
 #include "Hit.h"
 #include "Tank.h"
+#include "Upgrade.h"
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <memory>
+#include <random>
 #include <tuple>
 #include <vector>
 
@@ -104,7 +106,9 @@ public:
   }
 
   bool checkCollision(const std::vector<std::shared_ptr<Tank>> &objects,
-                      std::vector<std::unique_ptr<Hit>> &Hits) {
+                      std::vector<std::unique_ptr<Hit>> &Hits,
+                      std::vector<std::unique_ptr<Upgrade>> &Upgrades,
+                      int rngUpgradeType, int rngUpgradeSpot) {
     const TankType from{m_tank->getType()};
     for (const auto &obj : objects) {
       if (obj->is_alive()) {
@@ -121,8 +125,12 @@ public:
             if (from <= general && to >= basic) {
               obj->hit();
               Hits.emplace_back(std::make_unique<Hit>(x - 1, y - 1));
-              if (!obj->is_alive())
+              if (!obj->is_alive()) {
                 g_score += 100 * (obj->getType() - 3);
+                if (obj->is_upgrade()) {
+                  Upgrades[rngUpgradeType]->setAlive(rngUpgradeSpot);
+                }
+              }
             } else if (from >= basic && to <= general) {
               Hits.emplace_back(std::make_unique<Hit>(x - 1, y - 1));
               obj->hit();

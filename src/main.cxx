@@ -15,6 +15,7 @@
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
+#include <SFML/System/Vector2.hpp>
 #include <algorithm>
 #include <cstdlib>
 #include <iostream>
@@ -30,7 +31,7 @@ const int g_ofX{4};    // Frame size, horizontal
 const int g_ofY{20};   // Frame size, vertical
 const int g_info{36};  // Info panel width
 const int g_refreshRate{30};
-int g_stage{1};
+int g_stage{0};
 int g_score{0};
 int g_spawnDelay{5};
 bool g_gameOver{false};
@@ -47,7 +48,7 @@ int main() {
   auto window{sf::RenderWindow(
       sf::VideoMode({static_cast<unsigned int>(g_maxX) + g_ofX + g_info,
                      static_cast<unsigned int>(g_maxY) + g_ofY * 2}),
-      "Battlecity")};
+      "Battlecity", sf::Style::Default, sf::State::Windowed)};
   window.setFramerateLimit(g_refreshRate);
   window.setKeyRepeatEnabled(false);
   sf::RectangleShape battlefield(
@@ -66,7 +67,8 @@ int main() {
   // PRNG {{{3
   std::mt19937 mt{std::random_device{}()};
   std::uniform_int_distribution rng3{1, 3};
-  std::uniform_int_distribution rng4{1, 4};
+  std::uniform_int_distribution rng6{0, 5};
+  std::uniform_int_distribution rng8{0, 7};
   std::uniform_int_distribution rng100{1, 100};
 
   // Base {{{3
@@ -242,6 +244,8 @@ int main() {
 
     // Draw projectiles {{{3
     if (!g_pause) {
+      int rngUpgradeType{rng6(mt)};
+      int rngUpgradeSpot{rng8(mt)};
       for (std::size_t i{0}; i < Projectiles.size(); ++i) {
         // Check if projectile hit the base
         if (!g_gameOver && Projectiles[i]->checkBaseHit()) {
@@ -256,7 +260,9 @@ int main() {
             // Check if projectile hit another projectile
           } else if (Projectiles[i]->checkCollision(Projectiles)) {
             // Check if projectile hit a tank
-          } else if (Projectiles[i]->checkCollision(Tanks, Hits)) {
+          } else if (Projectiles[i]->checkCollision(Tanks, Hits, Upgrades,
+                                                    rngUpgradeType,
+                                                    rngUpgradeSpot)) {
             if (!g_gameOver && !playerTank->is_alive()) {
               g_gameOver = true;
               Bangs.emplace_back(std::make_unique<Bang>(88, 176));
@@ -373,6 +379,20 @@ int main() {
       }
     }
 
+    // Draw upgrades {{{3
+    if (!g_pause) {
+      for (std::size_t i{0}; i < Upgrades.size(); ++i) {
+        if (Upgrades[i]->is_alive()) {
+          const int rng{rng8(mt)};
+          UpgradeSprites[i]->setPosition(
+              {static_cast<float>(Upgrades[i]->getX()),
+               static_cast<float>(Upgrades[i]->getY())});
+          window.draw(*UpgradeSprites[i]);
+          Upgrades[i]->tick();
+        }
+      }
+    }
+
     // Draw gameover {{{3
     if (g_gameOver) {
       gameOverSprite->setPosition(
@@ -409,7 +429,7 @@ int main() {
             break;
           }
           Tanks.emplace_back(std::make_unique<Tank>(
-              NPCsArray[g_stage][nextNPC], spawnX, 0,
+              NpcStages[g_stage][nextNPC], spawnX, 0,
               (nextNPC == 3 || nextNPC == 10 || nextNPC == 17)));
           ++nextNPC;
           nextSpawn += g_spawnDelay * g_refreshRate;
@@ -443,7 +463,7 @@ int main() {
     if (!g_gameOver && nextNPC == 20 && Tanks.size() == 1 && Hits.empty() &&
         Projectiles.empty()) {
       ++g_stage;
-      if (g_stage == std::min(wallsArray.size(), NPCsArray.size())) {
+      if (g_stage == std::min(WallStages.size(), NpcStages.size())) {
         g_stage = 1;
         g_spawnDelay = std::max(1, g_spawnDelay - 1);
       }

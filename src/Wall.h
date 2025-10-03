@@ -1,5 +1,3 @@
-//
-// imports {{{1
 #pragma once
 #include "Stages.h"
 #include <SFML/Graphics/Sprite.hpp>
@@ -58,125 +56,136 @@ initWallSprites(const sf::Texture &Textures) {
 
 inline std::vector<std::unique_ptr<Wall>> initWalls() {
   std::vector<std::unique_ptr<Wall>> objects{};
-  for (std::size_t i{0}; i < wallsArray[g_stage].size(); ++i) {
-    switch (wallsArray[g_stage][i][2]) {
+  for (std::size_t i{0}; i < WallStages[g_stage].size(); ++i) {
+    switch (WallStages[g_stage][i][2]) {
     case 0:
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0], wallsArray[g_stage][i][1], 0));
+          WallStages[g_stage][i][0], WallStages[g_stage][i][1], 0));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 4, wallsArray[g_stage][i][1], 1));
+          WallStages[g_stage][i][0] + 4, WallStages[g_stage][i][1], 1));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 8, wallsArray[g_stage][i][1], 0));
+          WallStages[g_stage][i][0] + 8, WallStages[g_stage][i][1], 0));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 12, wallsArray[g_stage][i][1], 1));
+          WallStages[g_stage][i][0] + 12, WallStages[g_stage][i][1], 1));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0], wallsArray[g_stage][i][1] + 4, 1));
+          WallStages[g_stage][i][0], WallStages[g_stage][i][1] + 4, 1));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 4, wallsArray[g_stage][i][1] + 4, 0));
+          WallStages[g_stage][i][0] + 4, WallStages[g_stage][i][1] + 4, 0));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 8, wallsArray[g_stage][i][1] + 4, 1));
+          WallStages[g_stage][i][0] + 8, WallStages[g_stage][i][1] + 4, 1));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 12, wallsArray[g_stage][i][1] + 4, 0));
+          WallStages[g_stage][i][0] + 12, WallStages[g_stage][i][1] + 4, 0));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0], wallsArray[g_stage][i][1] + 8, 0));
+          WallStages[g_stage][i][0], WallStages[g_stage][i][1] + 8, 0));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 4, wallsArray[g_stage][i][1] + 8, 1));
+          WallStages[g_stage][i][0] + 4, WallStages[g_stage][i][1] + 8, 1));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 8, wallsArray[g_stage][i][1] + 8, 0));
+          WallStages[g_stage][i][0] + 8, WallStages[g_stage][i][1] + 8, 0));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 12, wallsArray[g_stage][i][1] + 8, 1));
+          WallStages[g_stage][i][0] + 12, WallStages[g_stage][i][1] + 8, 1));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0], wallsArray[g_stage][i][1] + 12, 1));
+          WallStages[g_stage][i][0], WallStages[g_stage][i][1] + 12, 1));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 4, wallsArray[g_stage][i][1] + 12, 0));
+          WallStages[g_stage][i][0] + 4, WallStages[g_stage][i][1] + 12, 0));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 8, wallsArray[g_stage][i][1] + 12, 1));
+          WallStages[g_stage][i][0] + 8, WallStages[g_stage][i][1] + 12, 1));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 12, wallsArray[g_stage][i][1] + 12, 0));
+          WallStages[g_stage][i][0] + 12, WallStages[g_stage][i][1] + 12, 0));
       break;
 
     case 2:
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0], wallsArray[g_stage][i][1], 0));
+          WallStages[g_stage][i][0], WallStages[g_stage][i][1], 0));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 4, wallsArray[g_stage][i][1], 1));
+          WallStages[g_stage][i][0] + 4, WallStages[g_stage][i][1], 1));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 8, wallsArray[g_stage][i][1], 0));
+          WallStages[g_stage][i][0] + 8, WallStages[g_stage][i][1], 0));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 12, wallsArray[g_stage][i][1], 1));
+          WallStages[g_stage][i][0] + 12, WallStages[g_stage][i][1], 1));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0], wallsArray[g_stage][i][1] + 4, 1));
+          WallStages[g_stage][i][0], WallStages[g_stage][i][1] + 4, 1));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 4, wallsArray[g_stage][i][1] + 4, 0));
+          WallStages[g_stage][i][0] + 4, WallStages[g_stage][i][1] + 4, 0));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 8, wallsArray[g_stage][i][1] + 4, 1));
+          WallStages[g_stage][i][0] + 8, WallStages[g_stage][i][1] + 4, 1));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 12, wallsArray[g_stage][i][1] + 4, 0));
+          WallStages[g_stage][i][0] + 12, WallStages[g_stage][i][1] + 4, 0));
       break;
 
     case 3:
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0], wallsArray[g_stage][i][1], 0));
+          WallStages[g_stage][i][0], WallStages[g_stage][i][1], 0));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 4, wallsArray[g_stage][i][1], 1));
+          WallStages[g_stage][i][0] + 4, WallStages[g_stage][i][1], 1));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0], wallsArray[g_stage][i][1] + 4, 1));
+          WallStages[g_stage][i][0], WallStages[g_stage][i][1] + 4, 1));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 4, wallsArray[g_stage][i][1] + 4, 0));
+          WallStages[g_stage][i][0] + 4, WallStages[g_stage][i][1] + 4, 0));
       break;
 
     case 6:
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0], wallsArray[g_stage][i][1], 2));
+          WallStages[g_stage][i][0], WallStages[g_stage][i][1], 2));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 4, wallsArray[g_stage][i][1], 3));
+          WallStages[g_stage][i][0] + 4, WallStages[g_stage][i][1], 3));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 8, wallsArray[g_stage][i][1], 2));
+          WallStages[g_stage][i][0] + 8, WallStages[g_stage][i][1], 2));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 12, wallsArray[g_stage][i][1], 3));
+          WallStages[g_stage][i][0] + 12, WallStages[g_stage][i][1], 3));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0], wallsArray[g_stage][i][1] + 4, 4));
+          WallStages[g_stage][i][0], WallStages[g_stage][i][1] + 4, 4));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 4, wallsArray[g_stage][i][1] + 4, 5));
+          WallStages[g_stage][i][0] + 4, WallStages[g_stage][i][1] + 4, 5));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 8, wallsArray[g_stage][i][1] + 4, 4));
+          WallStages[g_stage][i][0] + 8, WallStages[g_stage][i][1] + 4, 4));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 12, wallsArray[g_stage][i][1] + 4, 5));
+          WallStages[g_stage][i][0] + 12, WallStages[g_stage][i][1] + 4, 5));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0], wallsArray[g_stage][i][1] + 8, 2));
+          WallStages[g_stage][i][0], WallStages[g_stage][i][1] + 8, 2));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 4, wallsArray[g_stage][i][1] + 8, 3));
+          WallStages[g_stage][i][0] + 4, WallStages[g_stage][i][1] + 8, 3));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 8, wallsArray[g_stage][i][1] + 8, 2));
+          WallStages[g_stage][i][0] + 8, WallStages[g_stage][i][1] + 8, 2));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 12, wallsArray[g_stage][i][1] + 8, 3));
+          WallStages[g_stage][i][0] + 12, WallStages[g_stage][i][1] + 8, 3));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0], wallsArray[g_stage][i][1] + 12, 4));
+          WallStages[g_stage][i][0], WallStages[g_stage][i][1] + 12, 4));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 4, wallsArray[g_stage][i][1] + 12, 5));
+          WallStages[g_stage][i][0] + 4, WallStages[g_stage][i][1] + 12, 5));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 8, wallsArray[g_stage][i][1] + 12, 4));
+          WallStages[g_stage][i][0] + 8, WallStages[g_stage][i][1] + 12, 4));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 12, wallsArray[g_stage][i][1] + 12, 5));
+          WallStages[g_stage][i][0] + 12, WallStages[g_stage][i][1] + 12, 5));
       break;
 
     case 7:
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0], wallsArray[g_stage][i][1], 2));
+          WallStages[g_stage][i][0], WallStages[g_stage][i][1], 2));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 4, wallsArray[g_stage][i][1], 3));
+          WallStages[g_stage][i][0] + 4, WallStages[g_stage][i][1], 3));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 8, wallsArray[g_stage][i][1], 2));
+          WallStages[g_stage][i][0] + 8, WallStages[g_stage][i][1], 2));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 12, wallsArray[g_stage][i][1], 3));
+          WallStages[g_stage][i][0] + 12, WallStages[g_stage][i][1], 3));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0], wallsArray[g_stage][i][1] + 4, 4));
+          WallStages[g_stage][i][0], WallStages[g_stage][i][1] + 4, 4));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 4, wallsArray[g_stage][i][1] + 4, 5));
+          WallStages[g_stage][i][0] + 4, WallStages[g_stage][i][1] + 4, 5));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 8, wallsArray[g_stage][i][1] + 4, 4));
+          WallStages[g_stage][i][0] + 8, WallStages[g_stage][i][1] + 4, 4));
       objects.emplace_back(std::make_unique<Wall>(
-          wallsArray[g_stage][i][0] + 12, wallsArray[g_stage][i][1] + 4, 5));
+          WallStages[g_stage][i][0] + 12, WallStages[g_stage][i][1] + 4, 5));
+      break;
+
+    case 8:
+      objects.emplace_back(std::make_unique<Wall>(
+          WallStages[g_stage][i][0], WallStages[g_stage][i][1], 2));
+      objects.emplace_back(std::make_unique<Wall>(
+          WallStages[g_stage][i][0] + 4, WallStages[g_stage][i][1], 3));
+      objects.emplace_back(std::make_unique<Wall>(
+          WallStages[g_stage][i][0], WallStages[g_stage][i][1] + 4, 4));
+      objects.emplace_back(std::make_unique<Wall>(
+          WallStages[g_stage][i][0] + 4, WallStages[g_stage][i][1] + 4, 5));
       break;
 
       // TODO: write remaining cases
