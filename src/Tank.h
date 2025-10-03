@@ -1,17 +1,22 @@
 // imports and globals {{{1
 #pragma once
 #include "Enums.h"
+#include "Hit.h"
+#include "Upgrade.h"
 #include "Wall.h"
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <algorithm>
 #include <cstdlib>
+#include <iostream>
 #include <iterator>
+#include <memory>
 #include <vector>
 
 extern const int g_maxX;
 extern const int g_maxY;
 extern const int g_refreshRate;
+extern int g_score;
 extern bool g_up;
 extern bool g_left;
 extern bool g_down;
@@ -101,9 +106,16 @@ public:
   int getY() const { return m_y; }
   void setY(int y) { m_y = y; }
   Dir getDir() const { return m_dir; }
-  int getHealth() const { return m_health; }
-  int getImmunity() { return (m_immunity > 0) ? --m_immunity : m_immunity; }
   TankType getType() const { return m_type; }
+  bool isUpgrade() const { return m_upgrade; }
+
+  int getHealth() const { return m_health; }
+  bool isAlive() const { return m_health > 0; }
+  void addLife() { ++m_health; }
+
+  int getImmunity() { return (m_immunity > 0) ? --m_immunity : m_immunity; }
+  bool isImmune() const { return m_immunity > 0; }
+  void setImmunity(int time) { m_immunity = time * g_refreshRate; }
 
   std::tuple<int, int> getSize() const {
     if (m_dir % 2)
@@ -112,10 +124,6 @@ public:
       return {m_width, m_length};
     ;
   }
-
-  bool is_alive() const { return m_health > 0; }
-  bool is_immune() const { return m_immunity > 0; }
-  bool is_upgrade() const { return m_upgrade; }
 
   void addShot() { ++m_shots; }
   void shoot() {
@@ -138,7 +146,7 @@ public:
   }
 
   void disable(int time) { m_disable += g_refreshRate * time; }
-  bool is_disabled() const { return m_disable > 0; }
+  bool isDisabled() const { return m_disable > 0; }
   void repair() { --m_disable; }
 
   void respawn() {
@@ -284,12 +292,69 @@ public:
     return outOfScreen;
   }
   // }}}1
+  // checkUpgrades {{{1
+  void checkUpgrades(const std::vector<std::shared_ptr<Tank>> &Tanks,
+                     std::vector<std::unique_ptr<Hit>> &Hits,
+                     const std::vector<std::unique_ptr<Upgrade>> &Upgrades) {
+    for (std::size_t i{0}; i < Upgrades.size(); ++i) {
+      if (Upgrades[i]->isAlive()) {
+        const int x{Upgrades[i]->getX()};
+        const int y{Upgrades[i]->getY()};
+        const auto [dx, dy]{getSize()};
+        if ((m_x < x + 16) && (x < m_x + dx) && (m_y < y + 16) &&
+            (y < m_y + dy)) {
+          switch (i) {
+
+            // helmet
+          case 0:
+            setImmunity(10);
+            break;
+
+            // freeze
+          case 1:
+            for (const auto &tank : Tanks) {
+              if (tank->getType() >= basic)
+                tank->disable(10);
+            }
+            break;
+
+            // shovel
+          case 2:
+            break;
+
+            // star
+          case 3:
+            upgrade();
+            break;
+
+            // grenade
+          case 4:
+            for (const auto &tank : Tanks) {
+              if (tank->getType() >= basic) {
+                tank->hit(true);
+                Hits.emplace_back(std::make_unique<Hit>(m_x - 1, m_y - 1));
+              }
+            }
+            break;
+
+            // life
+          case 5:
+            addLife();
+            break;
+          }
+          Upgrades[i]->kill();
+          g_score += 500;
+        }
+      }
+    }
+  }
+
   // checkCollision {{{1
   template <typename T> bool checkCollision(const std::vector<T> &objects) {
     bool collisionDetected{false};
     if (m_dir == up) {
       for (const auto &obj : objects) {
-        if (obj->is_alive()) {
+        if (obj->isAlive()) {
           const int x{obj->getX()};
           const int y{obj->getY()};
           const auto [dx, dy] = obj->getSize();
@@ -307,7 +372,7 @@ public:
 
     } else if (m_dir == left) {
       for (const auto &obj : objects) {
-        if (obj->is_alive()) {
+        if (obj->isAlive()) {
           const int x{obj->getX()};
           const int y{obj->getY()};
           const auto [dx, dy] = obj->getSize();
@@ -325,7 +390,7 @@ public:
 
     } else if (m_dir == down) {
       for (const auto &obj : objects) {
-        if (obj->is_alive()) {
+        if (obj->isAlive()) {
           const int x{obj->getX()};
           const int y{obj->getY()};
           const auto [dx, dy] = obj->getSize();
@@ -342,7 +407,7 @@ public:
 
     } else if (m_dir == right) {
       for (const auto &obj : objects) {
-        if (obj->is_alive()) {
+        if (obj->isAlive()) {
           const int x{obj->getX()};
           const int y{obj->getY()};
           const auto [dx, dy] = obj->getSize();
@@ -363,16 +428,6 @@ public:
   // updatePos {{{1
   void updatePos(const std::vector<std::unique_ptr<Wall>> &Walls,
                  const std::vector<std::shared_ptr<Tank>> &NPCs) {
-    if (m_type < basic) {
-      if (g_up)
-        m_dir = up;
-      else if (g_left)
-        m_dir = left;
-      else if (g_down)
-        m_dir = down;
-      else if (g_right)
-        m_dir = right;
-    }
     if (!checkOutOfBounds() && !checkCollision(Walls) &&
         !(checkCollision(NPCs))) {
       if (m_dir == up) {

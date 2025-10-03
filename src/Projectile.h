@@ -6,7 +6,6 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <memory>
-#include <random>
 #include <tuple>
 #include <vector>
 
@@ -37,8 +36,13 @@ public:
     else
       return {3, 4};
   }
-  bool is_alive() const { return m_alive; }
+  bool isAlive() const { return m_alive; }
   void kill() { m_alive = false; }
+
+  sf::Sprite *
+  getSprite(const std::vector<std::unique_ptr<sf::Sprite>> &Sprites) const {
+    return Sprites[m_dir].get();
+  };
 
   void move() {
     switch (m_dir) {
@@ -71,7 +75,7 @@ public:
 
   bool checkCollision(const std::vector<std::unique_ptr<Wall>> &objects) {
     for (const auto &obj : objects) {
-      if (obj->is_alive()) {
+      if (obj->isAlive()) {
         const int x{obj->getX()};
         const int y{obj->getY()};
         if ((!(m_dir % 2) && (x + 4 > m_x) && (x < m_x + 3) && (y + 4 > m_y) &&
@@ -88,7 +92,7 @@ public:
 
   bool checkCollision(const std::vector<std::unique_ptr<Projectile>> &objects) {
     for (const auto &obj : objects) {
-      if (obj->is_alive() && obj.get() != this) {
+      if (obj->isAlive() && obj.get() != this) {
         const int x{obj->getX()};
         const int y{obj->getY()};
         const auto [dx, dy]{obj->getSize()};
@@ -111,7 +115,7 @@ public:
                       int rngUpgradeType, int rngUpgradeSpot) {
     const TankType from{m_tank->getType()};
     for (const auto &obj : objects) {
-      if (obj->is_alive()) {
+      if (obj->isAlive()) {
         const int x{obj->getX()};
         const int y{obj->getY()};
         const auto [dx, dy]{obj->getSize()};
@@ -121,13 +125,13 @@ public:
             ((m_dir % 2) && (y + dy > m_y) && (y < m_y + 3) && (x + dx > m_x) &&
              (x < m_x + 4))) {
           m_alive = false;
-          if (!obj->is_immune()) {
+          if (!obj->isImmune()) {
             if (from <= general && to >= basic) {
               obj->hit();
               Hits.emplace_back(std::make_unique<Hit>(x - 1, y - 1));
-              if (!obj->is_alive()) {
+              if (!obj->isAlive()) {
                 g_score += 100 * (obj->getType() - 3);
-                if (obj->is_upgrade()) {
+                if (obj->isUpgrade()) {
                   Upgrades[rngUpgradeType]->setAlive(rngUpgradeSpot);
                 }
               }
@@ -145,11 +149,6 @@ public:
     }
     return false;
   }
-
-  sf::Sprite *
-  getSprite(const std::vector<std::unique_ptr<sf::Sprite>> &Sprites) const {
-    return Sprites[m_dir].get();
-  };
 
   std::tuple<int, int> getHitPos() const {
     int x0{};

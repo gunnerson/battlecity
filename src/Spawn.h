@@ -16,7 +16,7 @@ public:
   int getX() const { return m_x; }
   int getY() const { return m_y; }
 
-  bool is_alive() const { return m_anim < 4; }
+  bool isAlive() const { return m_anim < 4; }
   void anim() { ++m_anim; }
 
   sf::Sprite *

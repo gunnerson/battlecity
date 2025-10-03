@@ -18,7 +18,7 @@ public:
   int getY() const { return m_y; }
   int getAnim() const { return m_anim; }
 
-  bool is_alive() const { return m_anim < g_refreshRate * 3 / 10 - 1; }
+  bool isAlive() const { return m_anim < g_refreshRate * 3 / 10 - 1; }
   void anim() { ++m_anim; }
 
   bool checkBlast(int x, int y) {

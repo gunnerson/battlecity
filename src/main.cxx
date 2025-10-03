@@ -46,8 +46,8 @@ int main() {
   // Initializations {{{2
   // Window {{{3
   auto window{sf::RenderWindow(
-      sf::VideoMode({static_cast<unsigned int>(g_maxX) + g_ofX + g_info,
-                     static_cast<unsigned int>(g_maxY) + g_ofY * 2}),
+      sf::VideoMode({static_cast<unsigned int>(g_maxX + g_ofX + g_info),
+                     static_cast<unsigned int>(g_maxY + g_ofY * 2)}),
       "Battlecity", sf::Style::Default, sf::State::Windowed)};
   window.setFramerateLimit(g_refreshRate);
   window.setKeyRepeatEnabled(false);
@@ -90,7 +90,7 @@ int main() {
   std::vector<std::unique_ptr<Upgrade>> Upgrades{};
   for (int i{0}; i < 6; ++i) {
     Upgrades.emplace_back(
-        std::make_unique<Upgrade>(static_cast<UpgradeType>(i)));
+        std::make_unique<Upgrade>(static_cast<UpgradeType>(i), UpgradeSprites));
   }
 
   // Tanks {{{3
@@ -263,7 +263,7 @@ int main() {
           } else if (Projectiles[i]->checkCollision(Tanks, Hits, Upgrades,
                                                     rngUpgradeType,
                                                     rngUpgradeSpot)) {
-            if (!g_gameOver && !playerTank->is_alive()) {
+            if (!g_gameOver && !playerTank->isAlive()) {
               g_gameOver = true;
               Bangs.emplace_back(std::make_unique<Bang>(88, 176));
               base->kill();
@@ -284,25 +284,22 @@ int main() {
     // Draw tanks {{{3
     if (!g_pause) {
       for (const auto &tank : Tanks) {
-        if (tank->is_alive()) {
-          const auto tankSprite{tank->getSprite(TankSprites)};
-          const auto [dx, dy]{tank->getSize()};
-          tankSprite->setPosition({g_ofX + static_cast<float>(tank->getX()),
-                                   g_ofY + static_cast<float>(tank->getY())});
-          window.draw(*tankSprite);
+        if (tank->isAlive()) {
+
           const int immunity{tank->getImmunity()};
           if (immunity > 0) {
             const auto immunitySprite{ImmunitySprites[immunity % 4 > 1].get()};
             immunitySprite->setPosition(
-                {g_ofX + static_cast<float>(tank->getX() - 1),
-                 g_ofY + static_cast<float>(tank->getY() - 1)});
+                {static_cast<float>(g_ofX + tank->getX() - 1),
+                 static_cast<float>(g_ofY + tank->getY() - 1)});
             window.draw(*immunitySprite);
           }
 
-          if (tank->getType() < basic) {
+          if (tank->getType() <= general) {
             // Player tank
             if (!g_gameOver) {
-              if (tank->is_disabled())
+              tank->checkUpgrades(Tanks, Hits, Upgrades);
+              if (tank->isDisabled())
                 tank->repair();
               else if (g_up || g_left || g_down || g_right) {
                 tank->updatePos(Walls, Tanks);
@@ -312,7 +309,7 @@ int main() {
 
           } else {
             // NPCs
-            if (tank->is_disabled())
+            if (tank->isDisabled())
               tank->repair();
             else {
               tank->updatePos(Walls, Tanks);
@@ -328,16 +325,21 @@ int main() {
                   rng100(mt), rng100(mt), rng100(mt), rng100(mt), rng100(mt)});
             }
           }
+          const auto tankSprite{tank->getSprite(TankSprites)};
+          const auto [dx, dy]{tank->getSize()};
+          tankSprite->setPosition({static_cast<float>(g_ofX + tank->getX()),
+                                   static_cast<float>(g_ofY + tank->getY())});
+          window.draw(*tankSprite);
         }
       }
     }
 
     // Draw walls {{{3
     for (const auto &wall : Walls) {
-      if (wall->is_alive()) {
+      if (wall->isAlive()) {
         const auto wallSprite = wall->getSprite(WallSprites);
-        wallSprite->setPosition({g_ofX + static_cast<float>(wall->getX()),
-                                 g_ofY + static_cast<float>(wall->getY())});
+        wallSprite->setPosition({static_cast<float>(g_ofX + wall->getX()),
+                                 static_cast<float>(g_ofY + wall->getY())});
         window.draw(*wallSprite);
       }
     }
@@ -345,10 +347,10 @@ int main() {
     // Draw hits {{{3
     if (!g_pause) {
       for (std::size_t i{0}; i < Hits.size(); ++i) {
-        if (Hits[i]->is_alive()) {
+        if (Hits[i]->isAlive()) {
           const auto sprite{Hits[i]->getSprite(HitSprites)};
-          sprite->setPosition({g_ofX + static_cast<float>(Hits[i]->getX()),
-                               g_ofY + static_cast<float>(Hits[i]->getY())});
+          sprite->setPosition({static_cast<float>(g_ofX + Hits[i]->getX()),
+                               static_cast<float>(g_ofY + Hits[i]->getY())});
           window.draw(*sprite);
           Hits[i]->anim();
           if (Hits[i]->getAnim() == 1) {
@@ -367,10 +369,10 @@ int main() {
     // Draw bangs {{{3
     if (!g_pause) {
       for (std::size_t i{0}; i < Bangs.size(); ++i) {
-        if (Bangs[i]->is_alive()) {
+        if (Bangs[i]->isAlive()) {
           const auto sprite{Bangs[i]->getSprite(BangSprites)};
-          sprite->setPosition({g_ofX + static_cast<float>(Bangs[i]->getX()),
-                               g_ofY + static_cast<float>(Bangs[i]->getY())});
+          sprite->setPosition({static_cast<float>(g_ofX + Bangs[i]->getX()),
+                               static_cast<float>(g_ofY + Bangs[i]->getY())});
           window.draw(*sprite);
           Bangs[i]->anim();
         } else {
@@ -381,14 +383,10 @@ int main() {
 
     // Draw upgrades {{{3
     if (!g_pause) {
-      for (std::size_t i{0}; i < Upgrades.size(); ++i) {
-        if (Upgrades[i]->is_alive()) {
-          const int rng{rng8(mt)};
-          UpgradeSprites[i]->setPosition(
-              {static_cast<float>(Upgrades[i]->getX()),
-               static_cast<float>(Upgrades[i]->getY())});
-          window.draw(*UpgradeSprites[i]);
-          Upgrades[i]->tick();
+      for (const auto &obj : Upgrades) {
+        if (obj->isAlive()) {
+          window.draw(*obj->getSprite());
+          obj->tick();
         }
       }
     }
@@ -396,8 +394,8 @@ int main() {
     // Draw gameover {{{3
     if (g_gameOver) {
       gameOverSprite->setPosition(
-          {g_ofX + static_cast<float>(gameOver->getX()),
-           g_ofY + static_cast<float>(gameOver->getY())});
+          {static_cast<float>(g_ofX + gameOver->getX()),
+           static_cast<float>(g_ofY + gameOver->getY())});
       window.draw(*gameOverSprite);
       if (!g_pause)
         gameOver->anim();
@@ -407,7 +405,7 @@ int main() {
     if (g_pause)
       window.draw(pause);
 
-    // Spawn Tanks {{{3
+    // Spawn tanks {{{3
     if (!g_pause) {
       if (nextSpawn <= 0) {
         const int spawnSpot{rng3(mt)};
@@ -440,21 +438,21 @@ int main() {
 
     // Clean tanks {{{3
     for (std::size_t i{0}; i < Tanks.size(); ++i) {
-      if (!Tanks[i]->is_alive()) {
+      if (!Tanks[i]->isAlive()) {
         Tanks.erase(Tanks.begin() + i);
       }
     }
 
     // Clean projectiles {{{3
     for (std::size_t i{0}; i < Projectiles.size(); ++i) {
-      if (!Projectiles[i]->is_alive()) {
+      if (!Projectiles[i]->isAlive()) {
         Projectiles.erase(Projectiles.begin() + i);
       }
     }
 
     // Clean brick walls {{{3
     for (std::size_t i{0}; i < Walls.size(); ++i) {
-      if (!Walls[i]->is_alive()) {
+      if (!Walls[i]->isAlive()) {
         Walls.erase(Walls.begin() + i);
       }
     }

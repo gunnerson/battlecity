@@ -9,6 +9,8 @@
 #include <vector>
 
 extern const int g_refreshRate;
+extern const int g_ofX;
+extern const int g_ofY;
 extern int g_stage;
 
 class Upgrade {
@@ -17,16 +19,24 @@ private:
   int m_x{};
   int m_y{};
   int m_alive{0};
+  sf::Sprite *m_sprite{};
 
 public:
-  Upgrade(UpgradeType type) : m_type(type) {};
+  Upgrade(UpgradeType type,
+          const std::vector<std::unique_ptr<sf::Sprite>> &Sprites)
+      : m_type(type), m_sprite(Sprites[type].get()) {};
+
   int getX() const { return m_x; }
   int getY() const { return m_y; }
-  bool is_alive() const { return m_alive > 0; }
+  sf::Sprite *getSprite() const { return m_sprite; }
+  std::tuple<int, int> getSize() const { return {16, 16}; }
+  bool isAlive() const { return m_alive > 0; }
   void kill() { m_alive = 0; }
   void setAlive(int spot) {
     m_x = UpgradeStages[g_stage][spot][0];
     m_y = UpgradeStages[g_stage][spot][1];
+    m_sprite->setPosition(
+        {static_cast<float>(g_ofX + m_x), static_cast<float>(g_ofY + m_y)});
     m_alive += 15 * g_refreshRate;
   }
   void tick() { --m_alive; }

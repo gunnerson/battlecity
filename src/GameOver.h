@@ -11,7 +11,7 @@ private:
 public:
   int getX() const { return m_x; }
   int getY() const { return m_y; }
-  bool is_alive() const { return m_alive; }
+  bool isAlive() const { return m_alive; }
   void setAlive() { m_alive = true; }
   void anim() {
     if (m_y > 104)
