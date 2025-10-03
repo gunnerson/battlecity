@@ -5,8 +5,8 @@
 // Walls {{{1
 //
 // Textures:
-// 0,1: Brick
-// 2,3,4,5: Steel
+// 0,1: Brick 4px x 4px
+// 2,3,4,5: Steel 4px x 4px
 //
 // 0:   0101
 //      1010
@@ -145,6 +145,7 @@ const std::vector<std::vector<std::vector<int>>> WallStages{{
         {176, 176, 0}
 
     }}};
+
 // NPCs  {{{1
 const std::vector<std::vector<TankType>> NpcStages{
     {// Stage 0
@@ -158,6 +159,7 @@ const std::vector<std::vector<TankType>> NpcStages{
          basic, basic, basic, basic, basic, basic, basic, basic, basic, basic,
          fast,  basic, basic, basic, basic, basic, basic, fast,  basic, basic,
      }}};
+
 // Upgrades {{{1
 const std::vector<std::vector<std::vector<int>>> UpgradeStages{
 

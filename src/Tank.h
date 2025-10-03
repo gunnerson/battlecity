@@ -209,6 +209,7 @@ public:
     }
   }
   // }}}1
+
   // setDir {{{1
   void setDir(Dir dir) {
     if (std::abs(m_dir - dir) % 2) {
@@ -234,6 +235,7 @@ public:
     m_dir = dir;
   }
   // }}}1
+
   // checkOutOfBounds {{{1
   bool checkOutOfBounds() {
     bool outOfScreen{false};
@@ -298,6 +300,7 @@ public:
     return outOfScreen;
   }
   // }}}1
+
   // checkUpgrades {{{1
   void checkUpgrades(const std::vector<std::shared_ptr<Tank>> &Tanks,
                      std::vector<std::unique_ptr<Hit>> &Hits,
@@ -354,6 +357,7 @@ public:
       }
     }
   }
+  // }}}1
 
   // checkCollision {{{1
   template <typename T> bool checkCollision(const std::vector<T> &objects) {
@@ -431,6 +435,7 @@ public:
     return collisionDetected;
   }
   // }}}1
+
   // updatePos {{{1
   void updatePos(const std::vector<std::unique_ptr<Wall>> &Walls,
                  const std::vector<std::shared_ptr<Tank>> &NPCs) {
@@ -461,6 +466,7 @@ public:
       m_upgrade = false;
   }
   // }}}1
+
   // getProjectile {{{1
   // Get speed and coordinates for new projectile
   std::tuple<int, int, Dir, int> getProjectile() const {
@@ -501,6 +507,7 @@ public:
     return {};
   }
   // }}}1
+
   // onSpawn {{{1
   // Check if tank occupies spawn location
   bool onSpawn(int spot) const {
@@ -515,6 +522,7 @@ public:
     return false;
   }
   // }}}1
+
   // updateDir {{{1
   // Decide whether to turn
   void updateDir(const std::vector<int> &rng) {
@@ -534,6 +542,7 @@ public:
   }
   // }}}1
 };
+
 // initTankSprites {{{1
 inline std::vector<std::unique_ptr<sf::Sprite>>
 initTankSprites(const sf::Texture &Textures) {
@@ -789,6 +798,7 @@ initTankSprites(const sf::Texture &Textures) {
   }
   return objects;
 };
+
 // initImmunitySprites {{{1
 inline std::vector<std::unique_ptr<sf::Sprite>>
 initImmunitySprites(const sf::Texture &Textures) {
