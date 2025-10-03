@@ -162,9 +162,9 @@ public:
   // upgrade {{{1
   void upgrade(bool reset = false) {
     const int extraShots{(m_type > sergeant) ? 1 : 0};
-    m_type =
-        reset ? player : static_cast<TankType>(static_cast<int>(m_type) + 1);
     if (m_type < general) {
+      m_type =
+          reset ? player : static_cast<TankType>(static_cast<int>(m_type) + 1);
       switch (m_type) {
       case player:
         m_length = 13;
@@ -189,6 +189,7 @@ public:
         m_length = 15;
         break;
       case general:
+        m_length = 15;
         m_width = 14;
         switch (m_dir) {
         case up:

@@ -151,21 +151,22 @@ public:
   std::tuple<int, int> getHitPos() const {
     int x0{};
     int y0{};
+    const int extraDepth{(m_tank->getType() == general) ? 4 : 0};
     switch (m_dir) {
     case up:
       x0 = (m_x + 1) / 8 * 8;
-      y0 = m_y / 4 * 4;
+      y0 = m_y / 4 * 4 - extraDepth;
       return {(m_x - x0 > 3) ? x0 : x0 - 8, y0};
     case left:
-      x0 = m_x / 4 * 4;
+      x0 = m_x / 4 * 4 - extraDepth;
       y0 = (m_y + 1) / 8 * 8;
       return {x0, (m_y - y0 > 3) ? y0 : y0 - 8};
     case down:
       x0 = (m_x + 1) / 8 * 8;
-      y0 = (m_y + 3) / 4 * 4;
+      y0 = (m_y + 3) / 4 * 4 + extraDepth;
       return {(m_x - x0 > 3) ? x0 : x0 - 8, y0 - 12};
     case right:
-      x0 = (m_x + 3) / 4 * 4;
+      x0 = (m_x + 3) / 4 * 4 + extraDepth;
       y0 = (m_y + 1) / 8 * 8;
       return {x0 - 12, (m_y - y0 > 3) ? y0 : y0 - 8};
     }
