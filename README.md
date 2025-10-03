@@ -9,9 +9,8 @@
 ## Visual Studio
 1. Open the project directory
 2. Click `Build all`
-3. Stare at the screen dumbly while the progress window is stuck on `Collenting data`
-4. When you get tired of waiting for the build to finish click `Rebuild all`
-5. Click `Run` or whatever the green play button is called
+3. When you get tired of dumbly staring at the screen waiting for the build to finish click `Rebuild all`
+4. Click `Run` or whatever the green play button is called
 
 # Progress
 - [x] Window generation
