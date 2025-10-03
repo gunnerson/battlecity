@@ -67,7 +67,6 @@ public:
       m_color = gray;
       m_dir = down;
       m_x += 1;
-      m_shots = 0;
       break;
     case fast:
       m_speed = 3;
@@ -76,7 +75,6 @@ public:
       m_color = gray;
       m_dir = down;
       m_x += 1;
-      m_shots = 0;
       break;
     case power:
       m_speed = 2;

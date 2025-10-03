@@ -369,8 +369,6 @@ int main() {
               }
             }
           }
-        } else {
-          Hits.erase(Hits.begin() + i);
         }
       }
     }
@@ -385,8 +383,6 @@ int main() {
                static_cast<float>(constants::ofY + Bangs[i]->getY())});
           window.draw(*sprite);
           Bangs[i]->anim();
-        } else {
-          Bangs.erase(Bangs.begin() + i);
         }
       }
     }
@@ -489,6 +485,20 @@ int main() {
                                  return !obj->isAlive();
                                }),
                 Walls.end());
+
+    // Clean Hits {{{3
+    Hits.erase(std::remove_if(Hits.begin(), Hits.end(),
+                              [](const std::unique_ptr<Hit> &obj) {
+                                return !obj->isAlive();
+                              }),
+               Hits.end());
+
+    // Clean Bangs {{{3
+    Bangs.erase(std::remove_if(Bangs.begin(), Bangs.end(),
+                               [](const std::unique_ptr<Bang> &obj) {
+                                 return !obj->isAlive();
+                               }),
+                Bangs.end());
 
     // Change stage {{{3
     if (!g_gameOver && nextNPC == 20 && Tanks.size() == 1 && Hits.empty() &&
