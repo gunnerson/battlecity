@@ -131,6 +131,8 @@ public:
   }
 
   void hit(bool fatal = false) {
+    if (m_type > player && m_type <= general)
+      upgrade(true);
     if (fatal)
       m_health = 0;
     else
@@ -158,10 +160,17 @@ public:
   };
 
   // upgrade {{{1
-  void upgrade() {
+  void upgrade(bool reset = false) {
+    const int extraShots{(m_type > sergeant) ? 1 : 0};
+    m_type =
+        reset ? player : static_cast<TankType>(static_cast<int>(m_type) + 1);
     if (m_type < general) {
-      m_type = static_cast<TankType>(static_cast<int>(m_type) + 1);
       switch (m_type) {
+      case player:
+        m_length = 13;
+        m_width = 13;
+        m_shots -= extraShots;
+        break;
       case sergeant:
         m_length = 16;
         switch (m_dir) {
@@ -174,11 +183,12 @@ public:
         case right:
           m_x -= 3;
         }
+        break;
       case colonel:
         ++m_shots;
         m_length = 15;
+        break;
       case general:
-        m_fire = 2;
         m_width = 14;
         switch (m_dir) {
         case up:
