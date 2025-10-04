@@ -1,6 +1,6 @@
 .cache/
-out/
 .vs/
+out/
 compile_commands.json
 CMakeSettings.json
 
