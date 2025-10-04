@@ -136,8 +136,8 @@ int main() {
   }
 
   // Events {{{2
-  const auto onClose{[&window](const sf::Event::Closed &) { window.close(); }};
-  const auto onResize{[&window](const sf::Event::Resized &) {
+  const auto onClose{[&](const sf::Event::Closed &) { window.close(); }};
+  const auto onResize{[&](const sf::Event::Resized &) {
     sf::Vector2u size = window.getSize();
     if (size.y < size.x) {
       size.x = size.y;
@@ -147,7 +147,7 @@ int main() {
     window.setSize(size);
   }};
 
-  const auto onKeyPressed{[&window, &playerTank, &Projectiles](
+  const auto onKeyPressed{[&](
                               const sf::Event::KeyPressed &keyPressed) {
     if (keyPressed.scancode == sf::Keyboard::Scancode::Escape) {
       window.close();
@@ -180,7 +180,7 @@ int main() {
     }
   }};
 
-  const auto onKeyReleased{[&window](
+  const auto onKeyReleased{[&](
                                const sf::Event::KeyReleased &keyReleased) {
     if (keyReleased.scancode == sf::Keyboard::Scancode::Pause && !g_gameOver)
       g_pause = !g_pause;
