@@ -1,0 +1,9 @@
+.cache/
+.vs/
+aur/
+build/
+media/
+out/
+venv/
+compile_commands.json
+
