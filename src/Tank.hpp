@@ -120,6 +120,15 @@ public:
   int getHealth() const { return m_health; }
   bool isAlive() const { return m_health > 0; }
   void addLife() { ++m_health; }
+  void reset() {
+    m_health = 3;
+    m_type = player;
+    m_length = 13;
+    m_width = 13;
+    m_reload = 0;
+    m_fire = 1;
+    m_shots = 1;
+  }
 
   int getImmunity() { return (m_immunity > 0) ? --m_immunity : m_immunity; }
   bool isImmune() const { return m_immunity > 0; }

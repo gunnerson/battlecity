@@ -9,8 +9,8 @@
 **Pause** - pause game.  
 **Arrow keys** - movement.  
 **Space** - fire.  
-**PageUp** - next level (resets score).  
-**PageDown** - previous level (resets score).  
+**PageUp** - reset (if game over) or next level (resets score).  
+**PageDown** - reset (if game over) or previous level (resets score).  
 **M** - mute/unmute (starts muted).  
 
 # Installation
@@ -18,7 +18,7 @@
 Download archive for your platform from latest [release](https://github.com/gunnerson/battlecity/releases/), extract and launch.
 
 ## Arch Linux
-From AUR with your favourite package manager, for example `yay -S battlecity-git`
+From AUR with your favourite helper, for example `yay -S battlecity-git`
 
 ## CLI
 1. Clone the repository `git clone https://github.com/gunnerson/battlecity.git`

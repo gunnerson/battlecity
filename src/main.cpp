@@ -432,7 +432,7 @@ int main() {
             window.draw(*immunitySprite);
           }
           tank->flash();
-        } else {
+        } else if (tank->getType() >= basic) {
           // Tank is dead
           const auto [x, y, dx, dy]{tank->getSize()};
           Bangs.emplace_back(
@@ -579,7 +579,8 @@ int main() {
     // Clean tanks {{{3
     Tanks.erase(std::remove_if(Tanks.begin(), Tanks.end(),
                                [](const std::shared_ptr<Tank> &obj) {
-                                 return !obj->isAlive();
+                                 return (obj->getType() >= basic &&
+                                         !obj->isAlive());
                                }),
                 Tanks.end());
 
@@ -618,12 +619,18 @@ int main() {
          Tanks.size() == 1 && Hits.empty() && Bangs.empty() &&
          Projectiles.empty())) {
       if (g_nextLevel || g_prevLevel) {
-        g_stage =
-            g_nextLevel
-                ? std::min(static_cast<int>(WallStages.size()) - 1, g_stage + 1)
-                : std::max(0, g_stage - 1);
+        if (!g_gameOver) {
+          g_stage = g_nextLevel
+                        ? std::min(static_cast<int>(WallStages.size()) - 1,
+                                   g_stage + 1)
+                        : std::max(0, g_stage - 1);
+        }
         g_nextLevel = g_prevLevel = false;
         g_score = 0;
+        g_gameOver = false;
+        gameOver->kill();
+        base->setAlive();
+        playerTank->reset();
         Tanks.erase(Tanks.begin() + 1, Tanks.end());
         Hits.clear();
         Bangs.clear();

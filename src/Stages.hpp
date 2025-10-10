@@ -3,10 +3,9 @@
 #include <vector>
 
 // Walls {{{1
-
 // Info {{{2
 //
-// Grid: XY, where X - row from 0 to 11, Y - column from 0 to 11
+// Grid: XY, where X - row from 0 to 12, Y - column from 0 to 12
 // grid = 100 * row + col
 //
 // Textures:
@@ -58,14 +57,11 @@
 //      00xx    xx00
 //
 // }}}2
-
-// Note: first 5 objects should always be base
-//
 // {Grid N, Texture N, Rotation}
+// IMPORTANT: first 5 objects should always be base
 const std::vector<std::vector<std::vector<int>>> WallStages{{
-
     // Stage 0 {{{2
-    // Don't change, used for "shovel" upgrade
+    // IMPORTANT: Don't change base - used for "shovel" upgrade
     {
         // Base
         {1105, 4, 3},

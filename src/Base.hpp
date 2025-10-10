@@ -15,6 +15,7 @@ public:
   int getY() const { return m_y; }
   bool isAlive() const { return m_alive; }
   void kill() { m_alive = false; }
+  void setAlive() { m_alive = true; }
 
   sf::Sprite *
   getSprite(const std::vector<std::unique_ptr<sf::Sprite>> &Sprites) const {

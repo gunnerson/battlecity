@@ -1,15 +1,26 @@
 #!/usr/bin/env python
 
+"""
+Description:
+    Converts 208x208 .png images of stages into arrays for "Stages.hpp".
+    Must add base manually.
+
+Dependencies:
+    pillow
+"""
+
 import argparse
 
 from PIL import Image
 
-# Green value of pixel at grid with X offset 1
+# Green value of pixel at grid with X offset 1: (1,0), except for ICE
+# Offset is necessary because forest pixel at (0,0) is transparent.
+
 BRICK = 7
 STEEL = 174
 FOREST = 79
 WATER = 64
-ICE = 102  # no offset at X
+ICE = 102  # !!! at (0,0) - no offset at X
 
 
 def main(file):
@@ -24,6 +35,7 @@ def main(file):
         ice += f"// Stage {i} {{{{{{2\n{{\n"
         walls += f"// Stage {i} {{{{{{2\n{{\n"
         next_file = f"{file.split('_')[0]}_{str(i).zfill(2)}.png"
+        # Iterates through all files at directory by mask "file_*.png"
         try:
             with Image.open(next_file) as img:
                 img = img.convert("RGBA")

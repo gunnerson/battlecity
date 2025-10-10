@@ -13,6 +13,7 @@ public:
   int getY() const { return m_y; }
   bool isAlive() const { return m_alive; }
   void setAlive() { m_alive = true; }
+  void kill() { m_alive = false; }
   void anim() {
     if (m_y > 104)
       --m_y;
