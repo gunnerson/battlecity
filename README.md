@@ -24,13 +24,14 @@ From AUR with your favourite helper, for example `yay -S battlecity-git`
 1. Clone the repository `git clone https://github.com/gunnerson/battlecity.git`
 2. Change directory `cd battlecity`
 3. Create build directory `mkdir build` and switch to it `cd build`
-3. Generate native build system `cmake ..`
+3. Generate native build system `cmake -DCMAKE_BUILD_TYPE=Release ..`
 4. Compile the project `cmake --build .` 
 5. The executable is generated at `bin/` directory.
+6. You just need the executable itself to run, so you can delete `battlecity` directory after moving the executable.
 
 ### One-liner
 ```
-git clone https://github.com/gunnerson/battlecity.git && cd battlecity && mkdir build && cd build && cmake .. && cmake --build . && cd bin
+git clone https://github.com/gunnerson/battlecity.git && mkdir battlecity/build && cd battlecity/build && cmake -DCMAKE_BUILD_TYPE=Release .. && cmake --build .
 ```
 
 # Progress
