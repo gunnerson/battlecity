@@ -28,6 +28,11 @@ From AUR with your favourite helper, for example `yay -S battlecity-git`
 4. Compile the project `cmake --build .` 
 5. The executable is generated at `bin/` directory.
 
+### One-liner
+```
+git clone https://github.com/gunnerson/battlecity.git && cd battlecity && mkdir build && cd build && cmake .. && cmake --build . && cd bin
+```
+
 # Progress
 - [x] Window generation
 - [x] Sprites
