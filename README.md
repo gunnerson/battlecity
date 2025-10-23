@@ -18,7 +18,7 @@
 Download archive for your platform from latest [release](https://github.com/gunnerson/battlecity/releases/), extract and launch.
 
 ## Arch Linux
-From AUR with your favourite helper, for example `yay -S battlecity-git`
+From [Arch User Repository](https://aur.archlinux.org/packages/battlecity-git) with your favourite helper, for example `yay -Syu battlecity-git`
 
 ## CLI
 1. Clone the repository `git clone https://github.com/gunnerson/battlecity.git`
